@@ -1,37 +1,78 @@
 <?php
 
-include('db_connect.php');
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
 
+require 'PHPMailer/src/Exception.php';
+require 'PHPMailer/src/PHPMailer.php';
+require 'PHPMailer/src/SMTP.php';
+$mail = new PHPMailer(true); 
+
+function generateSecretKey($length = 6) {
+  $characters = '0123456789';
+  $otp = '';
+  
+  for ($i = 0; $i < $length; $i++) {
+      $otp .= $characters[random_int(0, strlen($characters) - 1)];
+  }
+  
+  return $otp;
+}
+
+$mail->isSMTP();
+$mail->Host = 'smtp.gmail.com';
+$mail->SMTPAuth = true;
+$mail->Username = 'jsnode741@gmail.com'; 
+$mail->Password = 'vanc njjm vpmg mnmf'; 
+
+$mail->SMTPSecure = 'tls'; 
+$mail->Port = 587; 
+
+include('db_connect.php');
 session_start();
 
 if (isset($_POST['submit'])) {
   $username = $_POST['username'];
   $pass = $_POST['pass'];
-  if(strlen($username)==9 && is_numeric($username)){
-    $sql = "SELECT * FROM student WHERE s_id='$username' AND password = '$pass'";
-    $result = mysqli_query($conn, $sql);
-    if ($result->num_rows > 0) {
-      $row = mysqli_fetch_assoc($result);
-      $_SESSION['username'] = $row['s_id'];
-      header("Location: studenthome.php");
-    }
-  }
-  else if(1){
-    $sql = "SELECT * FROM verifier WHERE v_id='$username' AND password='$pass'";
-    $result = mysqli_query($conn, $sql);
-    if ($result->num_rows > 0) {
-      $row = mysqli_fetch_assoc($result);
-      $_SESSION['username'] = $row['v_id'];
-      header("Location: teacherhome.php");
-    }
-  }
-	
-	else {
-		echo "<script>alert('Oh No! Email or Password is Wrong OR You Do Not Have An Account.')</script>";
-	}
-}
-mysqli_close($conn);
 
+  if (strlen($username) == 9 && is_numeric($username)) {
+      $sql = "SELECT * FROM student WHERE s_id='$username'";
+      $result = mysqli_query($conn, $sql);
+
+      if ($result->num_rows > 0) {
+          $row = mysqli_fetch_assoc($result);
+          $_SESSION['username'] = $row['s_id'];
+          
+          if ($row['password'] === $pass) {
+              $otp = generateSecretKey(); 
+              $recipientEmail = $row['email']; 
+              $mail->addAddress($recipientEmail);
+              $mail->Subject = 'Your OTP for Login';
+              $mail->Body = 'Your OTP is: ' . $otp;
+              
+              if ($mail->send()) {
+                  
+                  $_SESSION['otp'] = $otp;
+                  $_SESSION['otp_timestamp'] = time(); 
+                  echo 'OTP sent via email. Please check your email and enter the OTP within the specified time.';
+                  echo '<div  id="otp-div">
+                      <label for="otp" class="form-label">Enter OTP:</label>
+                      <input type="text" class="form-control" id="otp" name="otp" />
+                      <button type="button" class="btn btn-outline-primary" onclick="verifyOTP()">Verify</button>
+                  </div>';
+              } else {
+                  echo 'Failed to send OTP via email.';
+              }
+          } else {
+            countAttempt(); // Decrease attempt count
+            echo "<p>'Incorrect Password.'</p>";
+        }
+          }
+      } else {
+          echo "INAVLID USERNAME";
+      }
+  } 
+  
 ?>
 
 <!DOCTYPE html>
@@ -100,6 +141,7 @@ mysqli_close($conn);
             <div class="col col-lg-12 text-center">
               <button
                 type="submit"
+                onclick="countAttempt()"
                 class="btn btn-outline-primary"
                 style="
                   width: 60px;
@@ -126,5 +168,31 @@ mysqli_close($conn);
       integrity="sha384-A3rJD856KowSb7dwlZdYEkO39Gagi7vIsF0jrRAoQmDKKtQBHUuLZ9AsSv4jD4Xa"
       crossorigin="anonymous"
     ></script>
+    <script>
+      function countAttempt() {
+        var attempt = 5;
+        while (attempt > 0) {
+          attempt--;
+        }
+        if (attempt == 0) {
+          alert("You have exceeded the maximum number of attempts");
+        }
+        return attempt;
+      }
+
+      function verifyOTP() {
+        
+        var enteredOTP = document.getElementById('otp').value;
+        var storedOTP = "<?php echo $_SESSION['otp']; ?>"; 
+        
+        if (enteredOTP === storedOTP) {
+          // OTP is correct, redirect to the student home
+          window.location.href = 'studenthome.php';
+        } else {
+          // OTP is incorrect, display an error message
+          alert('Incorrect OTP. Please try again.');
+        }
+      }
+    </script>
   </body>
 </html>

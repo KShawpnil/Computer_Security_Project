@@ -1,92 +1,67 @@
 <?php
-
 include('db_connect.php');
-
 session_start();
 
 if (isset($_POST['submit'])) {
+    $user_name = $_POST['student-id'];
+    $email = $_POST['email'];
+    $full_name = $_POST['full-name'];
+    $phone = $_POST['phone'];
+    $department = $_POST['dept'];
+    $gender = $_POST['gender'];
+    $dob = $_POST['dob'];
+    $designation = $_POST['designation'];
+    $password = $_POST['password'];
+    $confirm_password = $_POST['confirm-pass'];
 
-  $user_name = $_POST['student-id'];
-  $email = $_POST['email'];
-  $full_name = $_POST['full-name'];
-  $phone = $_POST['phone'];
-  $department = $_POST['dept'];
-  $gender = $_POST['gender'];
-  $dob = $_POST['dob'];
-  $designation = $_POST['designation'];
-  $password = $_POST['password'];
-  $confirm_password = $_POST['confirm-pass'];
-  if ($password == $confirm_password) {
-    $sql = "SELECT * FROM student WHERE s_id='$user_name'";
-		$result = mysqli_query($conn, $sql);
-    $sql2 = "SELECT * FROM verifier WHERE v_id='$user_name'";
-		$result2 = mysqli_query($conn, $sql2);
-		if (strlen($user_name)==9 && is_numeric($user_name)) {
-			if(!$result->num_rows > 0){
-        $sql = "INSERT INTO student (s_id, name, phone, email, password, gender, dob, department)
-            VALUES ('$user_name', '$full_name', '$phone', '$email', '$password', '$gender', '$dob', '$department')";
-        $result = mysqli_query($conn, $sql);
-        if ($result) {
-          
-          // $username = "";
-        // $email = "";
-          // $_POST['password'] = "";
-          // $_POST['cpassword'] = "";
-          header("location:index.php");
-          // echo "<script>alert('Dear Student, your registration is complete.')</script>";
-        }
-        else {
-          echo "<script>alert('Something went wrong!')</script>";
-        }
-      }
-      else{
-        echo "<script>alert('This username already exists.')</script>";
-      }
-    }
-    else if(!$result2->num_rows > 0){
-      $sql = "INSERT INTO verifier (v_id, name, phone, email, password, gender, dob, department, designation)
-          VALUES ('$user_name', '$full_name', '$phone', '$email', '$password', '$gender', '$dob', '$department', '$designation')";
-      $result = mysqli_query($conn, $sql);
-      if ($result) {
-        
-        // $username = "";
-      // $email = "";
-        // $_POST['password'] = "";
-        // $_POST['cpassword'] = "";
-        header("location:index.php");
-        // echo "<script>alert('Dear Verifier, your registration is complete.')</script>";
-      }
-      else {
-        echo "<script>alert('Something went wrong!')</script>";
-      }
-    }
-    else {
-      echo "<script>alert('This username already exists.')</script>";
-    }
-  }
-  else {
-    echo "<script>alert('Passwords did not match.')</script>";
-  }
-  //$role=$_POST[''];
+    if ($password == $confirm_password) {
+        if (strlen($user_name) == 9 && is_numeric($user_name)) {
+            $sql = "SELECT * FROM student WHERE s_id='$user_name'";
+            $result = mysqli_query($conn, $sql);
 
-  //connection to database server
-  // $con = new mysqli('localhost', 'root', '', 'uiusatdb');
-  // if ($con->connect_errno) {
-  //   die('Connection Faild');
-  // } else {
-  //   $stmt = $con->prepare("INSERT INTO user(user_id, email, full_name, phone, dob, department, gender, password, designation) 
-  // values (?,?,?,?,?,?,?,?,?)");
-  //   $stmt->bind_param("sssssssss", $user_name, $email, $full_name, $phone, $dob, $department, $gender, $password, $designation);
-  //   $stmt->execute();
-  //   echo "Registered Succesfull";
-  //   $stmt->close();
-  //   $con->close();
-  //   header("location:login.php");
-  // }
-  mysqli_close($conn);
+            if ($result->num_rows == 0) {
+                
+
+                $sql = "INSERT INTO student (s_id, name, phone, email, password, gender, dob, department)
+                        VALUES ('$user_name', '$full_name', '$phone', '$email', '$password', '$gender', '$dob', '$department')";
+
+                if (mysqli_query($conn, $sql)) {
+                    header("location:index.php");
+                    exit;
+                } else {
+                    echo "<script>alert('Something went wrong!')</script>";
+                }
+            } else {
+                echo "<script>alert('This username already exists.')</script>";
+            }
+        } else {
+            $sql2 = "SELECT * FROM verifier WHERE v_id='$user_name'";
+            $result2 = mysqli_query($conn, $sql2);
+
+            if ($result2->num_rows == 0) {
+                $hashed_password = password_hash($password, PASSWORD_BCRYPT);
+
+                $sql = "INSERT INTO verifier (v_id, name, phone, email, password, gender, dob, department, designation)
+                        VALUES ('$user_name', '$full_name', '$phone', '$email', '$hashed_password', '$gender', '$dob', '$department', '$designation')";
+
+                if (mysqli_query($conn, $sql)) {
+                    header("location:index.php");
+                    echo "<script>alert('Dear Verifier, your registration is complete.')</script>";
+                    exit;
+                } else {
+                    echo "<script>alert('Something went wrong!')</script>";
+                }
+            } else {
+                echo "<script>alert('This username already exists.')</script>";
+            }
+        }
+    } else {
+        echo "<script>alert('Passwords did not match.')</script>";
+    }
 }
-
+mysqli_close($conn);
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">

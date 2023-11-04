@@ -11,7 +11,12 @@ $conn = mysqli_connect('localhost', 'root', '', 'uiusatdb');
 
 //Check Connection
 if (!$conn) {
+    
     die("<script>alert('Connection Failed.')</script>");
+}
+
+else{
+     echo "Connection Successful";
 }
 
 ?>
