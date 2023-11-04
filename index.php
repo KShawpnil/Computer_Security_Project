@@ -6,74 +6,112 @@ use PHPMailer\PHPMailer\Exception;
 require 'PHPMailer/src/Exception.php';
 require 'PHPMailer/src/PHPMailer.php';
 require 'PHPMailer/src/SMTP.php';
-$mail = new PHPMailer(true); 
+$mail = new PHPMailer(true);
 
 function generateSecretKey($length = 6) {
-  $characters = '0123456789';
-  $otp = '';
-  
-  for ($i = 0; $i < $length; $i++) {
-      $otp .= $characters[random_int(0, strlen($characters) - 1)];
-  }
-  
-  return $otp;
+    $characters = '0123456789';
+    $otp = '';
+
+    for ($i = 0; $i < $length; $i++) {
+        $otp .= $characters[random_int(0, strlen($characters) - 1)];
+    }
+
+    return $otp;
 }
 
 $mail->isSMTP();
 $mail->Host = 'smtp.gmail.com';
 $mail->SMTPAuth = true;
-$mail->Username = 'jsnode741@gmail.com'; 
-$mail->Password = 'vanc njjm vpmg mnmf'; 
+$mail->Username = 'jsnode741@gmail.com';
+$mail->Password = 'vanc njjm vpmg mnmf';
 
-$mail->SMTPSecure = 'tls'; 
-$mail->Port = 587; 
+$mail->SMTPSecure = 'tls';
+$mail->Port = 587;
 
 include('db_connect.php');
 session_start();
 
+$attempt = isset($_SESSION['attempt']) ? $_SESSION['attempt'] : 5;
+
 if (isset($_POST['submit'])) {
-  $username = $_POST['username'];
-  $pass = $_POST['pass'];
+    $username = $_POST['username'];
+    $pass = $_POST['pass'];
 
-  if (strlen($username) == 9 && is_numeric($username)) {
-      $sql = "SELECT * FROM student WHERE s_id='$username'";
-      $result = mysqli_query($conn, $sql);
+    if (strlen($username) == 9 && is_numeric($username)) {
+        $sql = "SELECT * FROM student WHERE s_id='$username'";
+        $result = mysqli_query($conn, $sql);
 
-      if ($result->num_rows > 0) {
-          $row = mysqli_fetch_assoc($result);
-          $_SESSION['username'] = $row['s_id'];
-          
-          if ($row['password'] === $pass) {
-              $otp = generateSecretKey(); 
-              $recipientEmail = $row['email']; 
-              $mail->addAddress($recipientEmail);
-              $mail->Subject = 'Your OTP for Login';
-              $mail->Body = 'Your OTP is: ' . $otp;
+        if ($result->num_rows > 0) {
+            $row = mysqli_fetch_assoc($result);
+            $_SESSION['username'] = $row['s_id'];
+
+            if ($row['password'] === $pass) {
+              $_SESSION['user_email'] = $row['email'];
+
+                if ($attempt > 0) {
+                    $otp = generateSecretKey();
+                    $recipientEmail = $row['email'];
+                    $mail->addAddress($recipientEmail);
+                    $mail->Subject = 'Your OTP for Login';
+                    $mail->Body = 'Your OTP is: ' . $otp;
+
+                    if ($mail->send()) {
+                        $_SESSION['otp'] = $otp;
+                        $_SESSION['otp_timestamp'] = time();
+                        echo 'OTP sent via email. Please check your email and enter the OTP within the specified time.';
+                        echo '<div  id="otp-div">
+                            <label for="otp" class="form-label">Enter OTP:</label>
+                            <input type="text" class="form-control" id="otp" name="otp" />
+                            <button type="button" class="btn btn-outline-primary" onclick="verifyOTP()">Verify</button>
+                        </div>';
+                    } else {
+                        echo 'Failed to send OTP via email.';
+
+                    }
+                }
+                else {
+                  echo '<div class="warning-message"> hi</div>';
+                  echo '<div class="warning-message">Try again .</div>';
+                }
+                
+            } else {
+              if ($attempt > 0) {
+                $attempt--; 
+            }
+            
+            if ($attempt == 0) {
               
-              if ($mail->send()) {
-                  
-                  $_SESSION['otp'] = $otp;
-                  $_SESSION['otp_timestamp'] = time(); 
-                  echo 'OTP sent via email. Please check your email and enter the OTP within the specified time.';
-                  echo '<div  id="otp-div">
-                      <label for="otp" class="form-label">Enter OTP:</label>
-                      <input type="text" class="form-control" id="otp" name="otp" />
-                      <button type="button" class="btn btn-outline-primary" onclick="verifyOTP()">Verify</button>
-                  </div>';
-              } else {
-                  echo 'Failed to send OTP via email.';
-              }
-          } else {
-            countAttempt(); // Decrease attempt count
-            echo "<p>'Incorrect Password.'</p>";
+                $resetTime = 10; 
+                $lastAttemptTimestamp = isset($_SESSION['last_attempt_timestamp']) ? $_SESSION['last_attempt_timestamp'] : 0;
+                $currentTime = time();
+            
+                if ($lastAttemptTimestamp > 0 && ($currentTime - $lastAttemptTimestamp) >= $resetTime) {
+                    
+                    $attempt = 5;
+                    $_SESSION['last_attempt_timestamp'] = $currentTime;
+                } else {
+                    echo '<div class="warning-message">You have exceeded the maximum number of attempts.</div>';
+                    echo '<div class="warning-message">Try again after 5 minutes.</div>';
+                }
+            }
+            
+           
+            $_SESSION['attempt'] = $attempt;
+            $_SESSION['last_attempt_timestamp'] = time();
+            
+
+                echo "You have $attempt attempts left";
+            }
+        } else {
+            echo "INVALID USERNAME";
         }
-          }
-      } else {
-          echo "INAVLID USERNAME";
-      }
-  } 
-  
+
+        $_SESSION['attempt'] = $attempt;
+    }
+}
 ?>
+
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -87,6 +125,8 @@ if (isset($_POST['submit'])) {
       integrity="sha384-gH2yIJqKdNHPEq0n4Mqa/HGKIhSkIHeL5AyhkYV8i59U5AR6csBvApHHNl/vI1Bx"
       crossorigin="anonymous"
     />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
   </head>
   <body>
     <style>
@@ -101,6 +141,15 @@ if (isset($_POST['submit'])) {
       .form-main {
         margin-top: 600px;
       }
+      
+    .warning-message {
+        color: #FF0000; 
+        font-weight: bold;
+        margin-top: 10px;
+
+    }
+
+
       
     </style>
     <div class="container form-main" style="margin-top: 170px;">
@@ -141,7 +190,7 @@ if (isset($_POST['submit'])) {
             <div class="col col-lg-12 text-center">
               <button
                 type="submit"
-                onclick="countAttempt()"
+              
                 class="btn btn-outline-primary"
                 style="
                   width: 60px;
@@ -169,16 +218,17 @@ if (isset($_POST['submit'])) {
       crossorigin="anonymous"
     ></script>
     <script>
-      function countAttempt() {
-        var attempt = 5;
-        while (attempt > 0) {
-          attempt--;
-        }
-        if (attempt == 0) {
-          alert("You have exceeded the maximum number of attempts");
-        }
-        return attempt;
-      }
+      // function countAttempt() {
+      //   var attempt = 5;
+      //   while (attempt > 0) {
+      //     attempt--;
+      //   }
+      //   if (attempt == 0) {
+      //     alert("You have exceeded the maximum number of attempts");
+      //   }
+       
+      //   return attempt;
+      // }
 
       function verifyOTP() {
         
@@ -186,13 +236,38 @@ if (isset($_POST['submit'])) {
         var storedOTP = "<?php echo $_SESSION['otp']; ?>"; 
         
         if (enteredOTP === storedOTP) {
-          // OTP is correct, redirect to the student home
-          window.location.href = 'studenthome.php';
+
+          setTimeout(() => {
+            console.log('hi');
+            sendLoginAlertEmail();
+          }, 1000);
+          
+
+          setTimeout(() => {
+            
+            window.location.href = 'studenthome.php';
+          }, 3000);
+
         } else {
-          // OTP is incorrect, display an error message
           alert('Incorrect OTP. Please try again.');
         }
       }
+
+      function sendLoginAlertEmail() {
+    var userEmail = "<?php echo $_SESSION['user_email']; ?>";
+    console.log("User Email: " + userEmail);
+
+    $.ajax({
+        type: "POST",
+        url: "send_login_alert.php",
+        data: { userEmail: userEmail }, // Use the same key as in PHP
+        success: function(response) {
+            console.log(response);
+        }
+    });
+}
+
+
     </script>
   </body>
 </html>
