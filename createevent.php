@@ -19,11 +19,11 @@ if (isset($_POST['submitsearch'])) {
     $searchtype = filter_input(INPUT_POST, 'searchtype', FILTER_SANITIZE_STRING);
     $searchtext = mysqli_real_escape_string($conn, $_POST['searchtext']);
     if ($searchtype == "Students") {
-      $sql = "SELECT *
-              FROM student
-              WHERE name LIKE '%$searchtext%'
-                OR s_id LIKE '%$searchtext%'";
-      $result = mysqli_query($conn, $sql);
+      $sql = "SELECT * FROM student WHERE name LIKE ? OR s_id LIKE ?";
+      $stmt = mysqli_prepare($conn, $sql);
+      mysqli_stmt_bind_param($stmt, "ss", $searchtext, $searchtext);
+      mysqli_stmt_execute($stmt);
+      $result = mysqli_stmt_get_result($stmt);
       if ($result->num_rows > 0) {
         $row = mysqli_fetch_assoc($result);
         $_SESSION['searchtext'] = $_POST['searchtext'];
@@ -33,11 +33,11 @@ if (isset($_POST['submitsearch'])) {
         echo "<script>alert('Sorry. We do not have that information in our database.')</script>";
       }
     } else if ($searchtype == "Verifiers") {
-      $sql = "SELECT *
-              FROM verifier
-              WHERE name LIKE '%$searchtext%'
-                OR v_id LIKE '%$searchtext%'";
-      $result = mysqli_query($conn, $sql);
+      $sql = "SELECT * FROM verifier WHERE name LIKE ? OR v_id LIKE ?";
+      $stmt = mysqli_prepare($conn, $sql);
+      mysqli_stmt_bind_param($stmt, "ss", $searchtext, $searchtext);
+      mysqli_stmt_execute($stmt);
+      $result = mysqli_stmt_get_result($stmt);
       echo ("Happy1");
       if ($result->num_rows > 0) {
         $row = mysqli_fetch_assoc($result);
@@ -49,11 +49,11 @@ if (isset($_POST['submitsearch'])) {
         echo "<script>alert('Sorry. We do not have that information in our database.')</script>";
       }
     } else if ($searchtype == "Achievements") {
-      $sql = "SELECT *
-              FROM achievements
-              WHERE name LIKE '%$searchtext%'
-                OR keywords LIKE '%$searchtext%'";
-      $result = mysqli_query($conn, $sql);
+      $sql = "SELECT * FROM achievements WHERE name LIKE ? OR keywords LIKE ?";
+      $stmt = mysqli_prepare($conn, $sql);
+      mysqli_stmt_bind_param($stmt, "ss", $searchtext, $searchtext);
+      mysqli_stmt_execute($stmt);
+      $result = mysqli_stmt_get_result($stmt);
       if ($result->num_rows > 0) {
         $row = mysqli_fetch_assoc($result);
         $_SESSION['searchtext'] = $_POST['searchtext'];
@@ -63,12 +63,11 @@ if (isset($_POST['submitsearch'])) {
         echo "<script>alert('Sorry. We do not have that information in our database.')</script>";
       }
     } else if ($searchtype == "Events") {
-      $sql = "SELECT *
-              FROM events
-              WHERE name LIKE '%$searchtext%'
-                OR summary LIKE '%$searchtext%'
-                OR keywords LIKE '%$searchtext%'";
-      $result = mysqli_query($conn, $sql);
+      $sql = "SELECT * FROM events WHERE name LIKE ? OR summary LIKE ? OR keywords LIKE ?";
+      $stmt = mysqli_prepare($conn, $sql);
+      mysqli_stmt_bind_param($stmt, "sss", $searchtext, $searchtext,$searchtext);
+      mysqli_stmt_execute($stmt);
+      $result = mysqli_stmt_get_result($stmt);
       if ($result->num_rows > 0) {
         $row = mysqli_fetch_assoc($result);
         $_SESSION['searchtext'] = $_POST['searchtext'];
@@ -78,12 +77,11 @@ if (isset($_POST['submitsearch'])) {
         echo "<script>alert('Sorry. We do not have that information in our database.')</script>";
       }
     } else if ($searchtype == "Notices") {
-      $sql = "SELECT *
-              FROM notices
-              WHERE name LIKE '%$searchtext%'
-                OR content LIKE '%$searchtext%'
-                OR keywords LIKE '%$searchtext%'";
-      $result = mysqli_query($conn, $sql);
+      $sql = "SELECT * FROM events WHERE name LIKE ? OR content LIKE ? OR keywords LIKE ?";
+      $stmt = mysqli_prepare($conn, $sql);
+      mysqli_stmt_bind_param($stmt, "sss", $searchtext, $searchtext,$searchtext);
+      mysqli_stmt_execute($stmt);
+      $result = mysqli_stmt_get_result($stmt);
       if ($result->num_rows > 0) {
         $row = mysqli_fetch_assoc($result);
         $_SESSION['searchtext'] = $_POST['searchtext'];
@@ -92,7 +90,8 @@ if (isset($_POST['submitsearch'])) {
       } else {
         echo "<script>alert('Sorry. We do not have that information in our database.')</script>";
       }
-    } else {
+    } 
+    else {
       echo "<script>alert('Please choose an option to search.')</script>";
     }
   }
@@ -126,44 +125,41 @@ if (isset($_POST['submit'])) {
   }
 
   $sql = "INSERT INTO events(name, post_date, event_date, event_time, location, summary, keywords, guests, special_members, v_id,image) 
-            VALUES ('$eventname',NOW(),'$eventdate','$eventtime','$eventlocation','$eventdescription','$eventkeywords','$eventguests','$eventspecialmembers','$username','$image_link')";
-  $result = mysqli_query($conn, $sql);
-
-  if ($result) {
-    echo ("First Query");
+            VALUES (?,NOW(),?,?,?,?,?,?,?,?,?)";
+  $stmt=mysqli_prepare($conn,$sql);
+  if($stmt){
+    mysqli_stmt_bind_param($stmt,"ssssssssss",$eventname,$eventdate,$eventtime,$eventlocation,$eventdescription,$eventkeywords,$eventguests,$eventspecialmembers,$username,$image_link);
+    if(mysqli_stmt_execute($stmt)){
+      echo "First Query";
+    }
+    mysqli_stmt_close($stmt);
   }
 
-  // $sql2 = "SELECT *
-  //          FROM events
-  //          WHERE e_id=(SELECT (MAX(e_id)+1) FROM events)";
   $sql2 = "SELECT * FROM events ORDER BY e_id DESC LIMIT 1";
-  $result = mysqli_query($conn, $sql2);
+  $stmt2 = mysqli_prepare($conn, $sql2);
+  mysqli_stmt_execute($stmt2);
+  $result = mysqli_stmt_get_result($stmt2);
   $event = mysqli_fetch_assoc($result);
-  // $eventidint=$event['e_id'];
-  echo $event['e_id'];
-  if ($result) {
-    echo ("Second Query");
+  if ($event) {
+    echo $event['e_id'];
+    echo "Second Query";
   }
+  mysqli_stmt_close($stmt2);
 
-
-  foreach ($participants_arr as $participants) {
-    $sql3 = "INSERT INTO participates(s_id, e_id) 
-               VALUES ('$participants','$event[e_id]')";
-    $result = mysqli_query($conn, $sql3);
+  $sql3 = "INSERT INTO participates(s_id, e_id) VALUES (?,?)";
+  $stmt3=mysqli_prepare($conn,$sql3);
+  if($stmt3){
+      foreach ($participants_arr as $participant) {
+      mysqli_stmt_bind_param($stmt3, "si", $participant, $event['e_id']);
+      mysqli_stmt_execute($stmt3);
+    }
+  mysqli_stmt_close($stmt3);
+  echo "Third Query";
   }
-
-  if ($result) {
-    echo ("Third Query");
-    // echo "<script>alert('Dear Student, your registration is complete.')</script>";
-  } else {
-    echo "<script>alert('Something went wrong!')</script>";
-  }
-
 
   header("Location: profile.php");
   mysqli_close($conn);
 }
-
 ?>
 
 <!DOCTYPE html>

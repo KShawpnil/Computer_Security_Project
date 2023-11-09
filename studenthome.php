@@ -1,4 +1,4 @@
-git<?php
+<?php
 
 include('db_connect.php');
 
@@ -32,7 +32,8 @@ if (isset($_SESSION['username'])) {
 
   $_SESSION['username'] = $username;
   // mysqli_free_result($result);
-} else {
+} 
+else {
   header("HTTP/1.0 404 Not Found");
   echo "<h1>404 Not Found</h1>";
   echo "The page that you have requested could not be found.";
