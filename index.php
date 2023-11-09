@@ -66,21 +66,19 @@ if (isset($_POST['submit'])) {
                         </div>';
                     } else {
                         echo 'Failed to send OTP via email.';
-
                     }
                 }
                 else {
-                  echo '<div class="warning-message"> hi</div>';
+                  echo '<div class="warning-message">hi</div>';
                   echo '<div class="warning-message">Try again .</div>';
                 }
                 
             } else {
               if ($attempt > 0) {
                 $attempt--; 
-            }
+              }
             
-            if ($attempt == 0) {
-              
+              if ($attempt == 0) {
                 $resetTime = 10; 
                 $lastAttemptTimestamp = isset($_SESSION['last_attempt_timestamp']) ? $_SESSION['last_attempt_timestamp'] : 0;
                 $currentTime = time();
@@ -93,13 +91,75 @@ if (isset($_POST['submit'])) {
                     echo '<div class="warning-message">You have exceeded the maximum number of attempts.</div>';
                     echo '<div class="warning-message">Try again after 5 minutes.</div>';
                 }
+              }
+            
+              $_SESSION['attempt'] = $attempt;
+              $_SESSION['last_attempt_timestamp'] = time();
+              echo "You have $attempt attempts left";
             }
-            
-           
-            $_SESSION['attempt'] = $attempt;
-            $_SESSION['last_attempt_timestamp'] = time();
-            
+        } else {
+            echo "INVALID USERNAME";
+        }
 
+        $_SESSION['attempt'] = $attempt;
+    } else {
+        $sql = "SELECT * FROM verifier WHERE v_id='$username'";
+        $result = mysqli_query($conn, $sql);
+
+        if ($result->num_rows > 0) {
+            $row = mysqli_fetch_assoc($result);
+            $_SESSION['username'] = $row['v_id'];
+
+            if ($row['password'] === $pass) {
+                $_SESSION['user_email'] = $row['email'];
+
+                if ($attempt > 0) {
+                    $otp = generateSecretKey();
+                    $recipientEmail = $row['email'];
+                    $mail->addAddress($recipientEmail);
+                    $mail->Subject = 'Your OTP for Login';
+                    $mail->Body = 'Your OTP is: ' . $otp;
+
+                    if ($mail->send()) {
+                        $_SESSION['otp'] = $otp;
+                        $_SESSION['otp_timestamp'] = time();
+                        echo 'OTP sent via email. Please check your email and enter the OTP within the specified time.';
+                        echo '<div  id="otp-div">
+                            <label for="otp" class="form-label">Enter OTP:</label>
+                            <input type="text" class="form-control" id="otp" name="otp" />
+                            <button type="button" class="btn btn-outline-primary" onclick="verifyOTP()">Verify</button>
+                        </div>';
+                    } else {
+                        echo 'Failed to send OTP via email.';
+                    }
+                } else {
+                    echo '<div class="warning-message">hi</div>';
+                    echo '<div class="warning-message">Try again .</div>';
+                }
+            } else {
+                if ($attempt > 0) {
+                    $attempt--; 
+                    echo '<h1> WRONG PASSWORD, TRY AGAIN </h1>';
+                }
+
+                
+                if ($attempt == 0) {
+                    $resetTime = 10; 
+                    $lastAttemptTimestamp = isset($_SESSION['last_attempt_timestamp']) ? $_SESSION['last_attempt_timestamp'] : 0;
+                    $currentTime = time();
+                
+                    if ($lastAttemptTimestamp > 0 && ($currentTime - $lastAttemptTimestamp) >= $resetTime) {
+                        
+                        $attempt = 5;
+                        $_SESSION['last_attempt_timestamp'] = $currentTime;
+                    } else {
+                        echo '<div class="warning-message">You have exceeded the maximum number of attempts.</div>';
+                        echo '<div class="warning-message">Try again after 5 minutes.</div>';
+                    }
+                }
+                
+                $_SESSION['attempt'] = $attempt;
+                $_SESSION['last_attempt_timestamp'] = time();
                 echo "You have $attempt attempts left";
             }
         } else {
@@ -110,6 +170,7 @@ if (isset($_POST['submit'])) {
     }
 }
 ?>
+
 
 
 
@@ -218,17 +279,7 @@ if (isset($_POST['submit'])) {
       crossorigin="anonymous"
     ></script>
     <script>
-      // function countAttempt() {
-      //   var attempt = 5;
-      //   while (attempt > 0) {
-      //     attempt--;
-      //   }
-      //   if (attempt == 0) {
-      //     alert("You have exceeded the maximum number of attempts");
-      //   }
-       
-      //   return attempt;
-      // }
+      
 
       function verifyOTP() {
         
