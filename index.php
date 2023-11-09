@@ -130,7 +130,7 @@ if (isset($_POST['submit'])) {
                             <button type="button" class="btn btn-outline-primary" onclick="verifyOTP()">Verify</button>
                         </div>';
                     } else {
-                        echo 'Failed to send OTP via email.';
+                        echo 'Failedd to send OTP via email.';
                     }
                 } else {
                     echo '<div class="warning-message">hi</div>';
