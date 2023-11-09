@@ -231,9 +231,6 @@ if (isset($_POST['submitsearch'])) {
       echo "<script>alert('Please choose an option to search.')</script>";
     }
   }
-
-
-
 ?>
 
 <!DOCTYPE html>
