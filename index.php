@@ -33,6 +33,31 @@ session_start();
 
 $attempt = isset($_SESSION['attempt']) ? $_SESSION['attempt'] : 5;
 
+
+
+
+
+// IP ADDRESS TRUSTED
+$trustedIp = ['::1','127.0.0.1', '192.168.1.1'];
+
+$ipAddress = $_SERVER['REMOTE_ADDR'];
+echo "Client IP Address: " . $ipAddress;
+
+// GETTING ACTUAL USER IP ADDRESS
+if (isset($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+    $forwardedIps = explode(',', $_SERVER['HTTP_X_FORWARDED_FOR']);
+    $ipAddress = trim(end($forwardedIps));
+}
+
+// CHECKING IP ADDRSS
+if (!in_array($ipAddress, $trustedIp)) {
+  echo '<h2 style="color: red;">Access denied!</h2>';
+
+    exit;
+}
+
+
+
 if (isset($_POST['submit'])) {
     $username = $_POST['username'];
     $pass = $_POST['pass'];
@@ -293,6 +318,17 @@ if (isset($_POST['submit'])) {
             sendLoginAlertEmail();
           }, 1000);
           
+          var userResponse = prompt("Do you want to save this device to trusted?", "Yes");
+
+            // Check the user's response
+            if (userResponse !== null) {
+                <?php $ipAddress = $_SERVER['REMOTE_ADDR']; 
+                $trustedIp[]= $ipAddress;
+                ?>
+
+            } else {
+                
+            }
 
           setTimeout(() => {
             
