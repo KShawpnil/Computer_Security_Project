@@ -41,7 +41,11 @@ $attempt = isset($_SESSION['attempt']) ? $_SESSION['attempt'] : 5;
 $trustedIp = ['::1','127.0.0.1', '192.168.1.1'];
 
 $ipAddress = $_SERVER['REMOTE_ADDR'];
-echo "Client IP Address: " . $ipAddress;
+echo " <div style= 'color: blue; font-size:20px'>
+Your IP Address is : $ipAddress 
+<br> 
+</div> ";
+ 
 
 // GETTING ACTUAL USER IP ADDRESS
 if (isset($_SERVER['HTTP_X_FORWARDED_FOR'])) {
@@ -51,7 +55,14 @@ if (isset($_SERVER['HTTP_X_FORWARDED_FOR'])) {
 
 // CHECKING IP ADDRSS
 if (!in_array($ipAddress, $trustedIp)) {
-  echo '<h2 style="color: red;">Access denied!</h2>';
+  echo 
+  '<body style="  justify-content: center;  ">
+
+  <div style="color: red;">
+      <h2>Access denied!</h2>
+  </div>
+  
+  </body>';
 
     exit;
 }
@@ -63,12 +74,14 @@ if (isset($_POST['submit'])) {
     $pass = $_POST['pass'];
 
     if (strlen($username) == 9 && is_numeric($username)) {
-      if(strlen($username)==9 && is_numeric($username)){
-        $sql = "SELECT * FROM student WHERE s_id=? AND password = ?";
-        $stmnt=mysqli_prepare($conn, $sql);
-        mysqli_stmt_bind_param($stmnt, "ss", $username, $pass);
-        mysqli_stmt_execute($stmnt);
-        $result = mysqli_stmt_get_result($stmnt);
+      
+      $sql = "SELECT * FROM student WHERE s_id=?";
+      $stmnt = mysqli_prepare($conn, $sql);
+      mysqli_stmt_bind_param($stmnt, "s", $username);  
+      mysqli_stmt_execute($stmnt);
+      $result = mysqli_stmt_get_result($stmnt);
+     
+      
 
         if ($result->num_rows > 0) {
             $row = mysqli_fetch_assoc($result);
@@ -99,12 +112,14 @@ if (isset($_POST['submit'])) {
                 }
                 else {
                   echo '<div class="warning-message">hi</div>';
-                  echo '<div class="warning-message">Try again .</div>';
+                  echo '<div class="warning-message">Try again after 10 seconds You have reached max attempts .</div>';
                 }
                 
             } else {
               if ($attempt > 0) {
                 $attempt--; 
+                echo '<h1> WRONG PASSWORD, TRY AGAIN </h1>';
+                echo '<div class="warning-message">You have $attempt left</div>';
               }
             
               if ($attempt == 0) {
@@ -127,18 +142,20 @@ if (isset($_POST['submit'])) {
               echo "You have $attempt attempts left";
             }
         } else {
-            echo "INVALID USERNAME";
-        }
+             echo "INVALID USERNAME";
+         }
 
-        $_SESSION['attempt'] = $attempt;
+        // $_SESSION['attempt'] = $attempt;
     } else {
-        $sql = "SELECT * FROM verifier WHERE v_id=? AND password=?";
-        $stmnt=mysqli_prepare($conn, $sql);
-        mysqli_stmt_bind_param($stmnt, "ss", $username, $pass);
+        $sql = "SELECT * FROM verifier WHERE v_id=?";
+        $stmnt = mysqli_prepare($conn, $sql);
+        mysqli_stmt_bind_param($stmnt, "s", $username);
         mysqli_stmt_execute($stmnt);
         $result = mysqli_stmt_get_result($stmnt);
+      
 
         if ($result->num_rows > 0) {
+
             $row = mysqli_fetch_assoc($result);
             $_SESSION['username'] = $row['v_id'];
 
@@ -164,14 +181,14 @@ if (isset($_POST['submit'])) {
                     } else {
                         echo 'Failedd to send OTP via email.';
                     }
-                } else {
-                    echo '<div class="warning-message">hi</div>';
-                    echo '<div class="warning-message">Try again .</div>';
-                }
+                 }
+                //     echo '<div class="warning-message">hi</div>';
+                //     echo '<div class="warning-message">Try again .</div>';
+                // }
             } else {
                 if ($attempt > 0) {
                     $attempt--; 
-                    echo '<h1> WRONG PASSWORD, TRY AGAIN </h1>';
+                    echo '<div class="warning-message"> <h1> WRONG PASSWORD,TRY AGAIN! </h1> </div>';
                 }
 
                 
@@ -195,14 +212,15 @@ if (isset($_POST['submit'])) {
                 echo "You have $attempt attempts left";
             }
         } 
+        else {
+            echo "INVALID USERNAME";
+        }
       }
       
       $_SESSION['attempt'] = $attempt;
     }
-    else {
-          echo "INVALID USERNAME";
-    }
-  }
+    
+  
 ?>
 
 
