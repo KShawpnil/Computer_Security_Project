@@ -8,7 +8,7 @@ require 'PHPMailer/src/PHPMailer.php';
 require 'PHPMailer/src/SMTP.php';
 $mail = new PHPMailer(true);
 
-function generateSecretKey($length = 6) {
+function generateSecretKey($length = 6){
     $characters = '0123456789';
     $otp = '';
 
@@ -63,8 +63,12 @@ if (isset($_POST['submit'])) {
     $pass = $_POST['pass'];
 
     if (strlen($username) == 9 && is_numeric($username)) {
-        $sql = "SELECT * FROM student WHERE s_id='$username'";
-        $result = mysqli_query($conn, $sql);
+      if(strlen($username)==9 && is_numeric($username)){
+        $sql = "SELECT * FROM student WHERE s_id=? AND password = ?";
+        $stmnt=mysqli_prepare($conn, $sql);
+        mysqli_stmt_bind_param($stmnt, "ss", $username, $pass);
+        mysqli_stmt_execute($stmnt);
+        $result = mysqli_stmt_get_result($stmnt);
 
         if ($result->num_rows > 0) {
             $row = mysqli_fetch_assoc($result);
@@ -128,8 +132,11 @@ if (isset($_POST['submit'])) {
 
         $_SESSION['attempt'] = $attempt;
     } else {
-        $sql = "SELECT * FROM verifier WHERE v_id='$username'";
-        $result = mysqli_query($conn, $sql);
+        $sql = "SELECT * FROM verifier WHERE v_id=? AND password=?";
+        $stmnt=mysqli_prepare($conn, $sql);
+        mysqli_stmt_bind_param($stmnt, "ss", $username, $pass);
+        mysqli_stmt_execute($stmnt);
+        $result = mysqli_stmt_get_result($stmnt);
 
         if ($result->num_rows > 0) {
             $row = mysqli_fetch_assoc($result);
@@ -187,13 +194,15 @@ if (isset($_POST['submit'])) {
                 $_SESSION['last_attempt_timestamp'] = time();
                 echo "You have $attempt attempts left";
             }
-        } else {
-            echo "INVALID USERNAME";
-        }
-
-        $_SESSION['attempt'] = $attempt;
+        } 
+      }
+      
+      $_SESSION['attempt'] = $attempt;
     }
-}
+    else {
+          echo "INVALID USERNAME";
+    }
+  }
 ?>
 
 

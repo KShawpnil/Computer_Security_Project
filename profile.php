@@ -5,13 +5,14 @@ include('db_connect.php');
 
 session_start();
 
-if (isset($_POST['submitachievement'])) {
-  // $_SESSION['username'] = $username;
+if (isset($_POST['submitachievement'])){
   header("Location: submit.php");
-  $sql5 =  mysqli_query($conn, "SELECT * FROM achievements WHERE s_id='$username'");
-  //$result2 = mysqli_query($conn, $sql5)
-  // or die("No sql: $sql5");
-  while ($row = mysqli_fetch_array($sql5)) {
+  $query="SELECT * FROM achievements WHERE s_id=?";
+  $stmnt = mysqli_prepare($conn,$query);
+  mysqli_stmt_bind_param($stmnt, "s", $username);
+  mysqli_stmt_execute($stmnt);
+  $sql5 = mysqli_stmt_get_result($stmnt);
+  while ($row = mysqli_fetch_array($sql5)){
     echo "<div id = 'file_div'";
     echo "file src = 'images/'" . $row['file_link'] . "'>";
     echo "<p>" . $row['category'] . "</p>";
@@ -25,8 +26,6 @@ if (isset($_POST['submitachievement'])) {
 }
 
 if (isset($_POST['submit9'])) {
-
-  //$sql5 =  mysqli_query($conn, "DELETE FROM achievements WHERE s_id='$username'"); 
   header("Location:delete.php");
 }
 
@@ -34,94 +33,114 @@ if (isset($_SESSION['username'])) {
   $username = mysqli_real_escape_string($conn, $_SESSION['username']);
 
   if (strlen($username) == 9 && is_numeric($username)) {
-    $sql = "SELECT * FROM student WHERE s_id='$username'";
-    $result = mysqli_query($conn, $sql);
+    $sql = "SELECT * FROM student WHERE s_id=?";
+    $stmt = mysqli_prepare($conn, $sql);
+    mysqli_stmt_bind_param($stmt, "s", $username);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
     $user = mysqli_fetch_assoc($result);
 
-    // $username=$user['s_id'];
-    // $email = $user['email'];
-    // $name = $user['name'];
-    // $phone = $user['phone'];
-    // $department = $user['department'];
-    // $gender = $user['gender'];
-    // $dob = $user['dob'];
-    $sqlprojects = "SELECT * FROM student INNER JOIN achievements ON student.s_id=achievements.s_id WHERE student.s_id='$user[s_id]' AND achievements.category LIKE 'project'";
-    $result = mysqli_query($conn, $sqlprojects);
-    $userprojects = mysqli_fetch_all($result, MYSQLI_ASSOC);
+    $sqlprojects = "SELECT * FROM student INNER JOIN achievements ON student.s_id=achievements.s_id WHERE student.s_id=? AND achievements.category LIKE 'project'";
+    $stmtProjects = mysqli_prepare($conn, $sqlprojects);
+    mysqli_stmt_bind_param($stmtProjects, "s", $user['s_id']);
+    mysqli_stmt_execute($stmtProjects);
+    $userprojects = mysqli_stmt_get_result($stmtProjects);
+    $userprojects = mysqli_fetch_all($userprojects, MYSQLI_ASSOC);
 
-    $sqlinternships = "SELECT * FROM student INNER JOIN achievements ON student.s_id=achievements.s_id WHERE student.s_id='$user[s_id]' AND achievements.category LIKE 'internship'";
-    $result = mysqli_query($conn, $sqlinternships);
-    $userinternships = mysqli_fetch_all($result, MYSQLI_ASSOC);
+    $sqlinternships = "SELECT * FROM student INNER JOIN achievements ON student.s_id=achievements.s_id WHERE student.s_id=? AND achievements.category LIKE 'internship'";
+    $stmtInternships = mysqli_prepare($conn, $sqlinternships);
+    mysqli_stmt_bind_param($stmtInternships, "s", $user['s_id']);
+    mysqli_stmt_execute($stmtInternships);
+    $userinternships = mysqli_stmt_get_result($stmtInternships);
+    $userinternships = mysqli_fetch_all($userinternships, MYSQLI_ASSOC);
 
-    $sqlawards = "SELECT * FROM student INNER JOIN achievements ON student.s_id=achievements.s_id WHERE student.s_id='$user[s_id]' AND achievements.category LIKE 'honors and awards'";
-    $result = mysqli_query($conn, $sqlawards);
-    $userawards = mysqli_fetch_all($result, MYSQLI_ASSOC);
+    $sqlawards = "SELECT * FROM student INNER JOIN achievements ON student.s_id=achievements.s_id WHERE student.s_id=? AND achievements.category LIKE 'honors and awards'";
+    $stmtAwards = mysqli_prepare($conn, $sqlawards);
+    mysqli_stmt_bind_param($stmtAwards, "s", $user['s_id']);
+    mysqli_stmt_execute($stmtAwards);
+    $userawards = mysqli_stmt_get_result($stmtAwards);
+    $userawards = mysqli_fetch_all($userawards, MYSQLI_ASSOC);
 
-    $sqlextracurricularactivities = "SELECT * FROM student INNER JOIN achievements ON student.s_id=achievements.s_id WHERE student.s_id='$user[s_id]' AND achievements.category LIKE 'extra-curricular activities'";
-    $result = mysqli_query($conn, $sqlextracurricularactivities);
-    $userextracurricularactivities = mysqli_fetch_all($result, MYSQLI_ASSOC);
+    $sqlextracurricularactivities = "SELECT * FROM student INNER JOIN achievements ON student.s_id=achievements.s_id WHERE student.s_id=? AND achievements.category LIKE 'extra-curricular activities'";
+    $stmtExtracurricularActivities = mysqli_prepare($conn, $sqlextracurricularactivities);
+    mysqli_stmt_bind_param($stmtExtracurricularActivities, "s", $user['s_id']);
+    mysqli_stmt_execute($stmtExtracurricularActivities);
+    $userextracurricularactivities = mysqli_stmt_get_result($stmtExtracurricularActivities);
+    $userextracurricularactivities = mysqli_fetch_all($userextracurricularactivities, MYSQLI_ASSOC);
 
-    $sqlstudentevents = "SELECT * FROM participates INNER JOIN events ON participates.e_id=events.e_id WHERE participates.s_id='$user[s_id]'";
-    $result = mysqli_query($conn, $sqlstudentevents);
-    $userstudentevents = mysqli_fetch_all($result, MYSQLI_ASSOC);
+    $sqlstudentevents = "SELECT * FROM participates INNER JOIN events ON participates.e_id=events.e_id WHERE participates.s_id=?";
+    $stmtStudentEvents = mysqli_prepare($conn, $sqlstudentevents);
+    mysqli_stmt_bind_param($stmtStudentEvents, "s", $user['s_id']);
+    mysqli_stmt_execute($stmtStudentEvents);
+    $userstudentevents = mysqli_stmt_get_result($stmtStudentEvents);
+    $userstudentevents = mysqli_fetch_all($userstudentevents, MYSQLI_ASSOC);
 
-    if (isset($_POST['submitpicture'])) {
+
+    if (isset($_POST['submitpicture'])){
       $image_link = $_FILES['file']['name'];
       $targetpicture = "profile_pictures/" . basename($_FILES['file']['name']);
-      // $image = $_FILES['img'];  
 
       if (move_uploaded_file($_FILES['file']['tmp_name'], $targetpicture)) {
         $msg = "Uploaded successfully";
-      } else {
+      } 
+      else {
         $msg = "Error in uploading";
       }
 
-      $sqlpicture = "UPDATE student
-                      SET image_id='$image_link'
-                      WHERE s_id='$username'";
-      $resultpicture = mysqli_query($conn, $sqlpicture);
+      $sqlpicture = "UPDATE student SET image_id=? WHERE s_id=?";
+      $stmnt = mysqli_prepare($conn, $sqlpicture);
+      mysqli_stmt_bind_param($stmnt, "ss", $image_link, $username);
+      mysqli_stmt_execute($stmnt);
     }
-  } else {
-    $sql = "SELECT * FROM verifier WHERE v_id='$username'";
+  }
+ 
+  else{
+    $sql = "SELECT * FROM verifier WHERE v_id=?";
+    $stmt = mysqli_prepare($conn, $sql);
+    mysqli_stmt_bind_param($stmt, "s", $username);
+    mysqli_stmt_execute($stmt);
     $result = mysqli_query($conn, $sql);
+    $result = mysqli_stmt_get_result($stmt);
     $user = mysqli_fetch_assoc($result);
 
-    // $username=$user['v_id'];
-    // $email = $user['email'];
-    // $name = $user['name'];
-    // $phone = $user['phone'];
-    // $department = $user['department'];
-    // $gender = $user['gender'];
-    // $dob = $user['dob'];
-    // $designation = $user['designation'];
-
-
-
     if (isset($_POST['submitpicture'])) {
+      $targetDirectory = "profile_pictures/";
       $image_link = $_FILES['file']['name'];
-      $targetpicture = "profile_pictures/" . basename($_FILES['file']['name']);
-      // $image = $_FILES['img'];  
+      $targetPath = $targetDirectory . basename($image_link);
 
-      if (move_uploaded_file($_FILES['file']['tmp_name'], $targetpicture)) {
-        $msg = "Uploaded successfully";
+      // File type validation (e.g., allowing only image file types)
+      $allowedFileTypes = array("jpg", "jpeg", "png", "gif");
+      $fileExtension = pathinfo($targetPath, PATHINFO_EXTENSION);
+
+      if (in_array(strtolower($fileExtension), $allowedFileTypes)) {
+          // Check and limit file size
+          $maxFileSize = 2 * 1024 * 1024; // 2MB
+          if ($_FILES['file']['size'] <= $maxFileSize) {
+              if (move_uploaded_file($_FILES['file']['tmp_name'], $targetPath)) {
+                  $msg = "Uploaded successfully";
+
+                  // Securely update the image in the database
+                  $stmt = mysqli_prepare($conn, "UPDATE verifier SET image_id = ? WHERE s_id = ?");
+                  mysqli_stmt_bind_param($stmt, "ss", $image_link, $username);
+                  mysqli_stmt_execute($stmt);
+              } else {
+                  $msg = "Error in uploading";
+              }
+          } else {
+              $msg = "File size exceeds the allowed limit.";
+          }
       } else {
-        $msg = "Error in uploading";
+          $msg = "Invalid file type. Only JPG, JPEG, PNG, and GIF are allowed.";
       }
-
-      $sqlpicture = "UPDATE verifier
-                      SET image_id='$image_link'
-                      WHERE s_id='$username'";
-      $resultpicture = mysqli_query($conn, $sqlpicture);
-    }
   }
 
 
 
   $_SESSION['username'] = $username;
-  // mysqli_free_result($result);
-  // mysqli_close($conn);
   ob_end_flush();
-} else {
+} 
+}
+else {
   header("HTTP/1.0 404 Not Found");
   echo "<h1>404 Not Found</h1>";
   echo "The page that you have requested could not be found.";
@@ -131,13 +150,14 @@ if (isset($_SESSION['username'])) {
 if (isset($_POST['submitsearch'])) {
   if (!empty($_POST['searchtext'])) {
     $searchtype = filter_input(INPUT_POST, 'searchtype', FILTER_SANITIZE_STRING);
-    $searchtext = mysqli_real_escape_string($conn, $_POST['searchtext']);
+    $searchtext = $_POST['searchtext'];
+    $searchtext = '%'. mysqli_real_escape_string($conn, $searchtext). '%';
     if ($searchtype == "Students") {
-      $sql = "SELECT *
-              FROM student
-              WHERE name LIKE '%$searchtext%'
-                OR s_id LIKE '%$searchtext%'";
-      $result = mysqli_query($conn, $sql);
+      $sql = "SELECT * FROM student WHERE name LIKE ? OR s_id LIKE ?";
+      $stmt = mysqli_prepare($conn, $sql);
+      mysqli_stmt_bind_param($stmt, "ss", $searchtext, $searchtext);
+      mysqli_stmt_execute($stmt);
+      $result = mysqli_stmt_get_result($stmt);
       if ($result->num_rows > 0) {
         $row = mysqli_fetch_assoc($result);
         $_SESSION['searchtext'] = $_POST['searchtext'];
@@ -146,12 +166,13 @@ if (isset($_POST['submitsearch'])) {
       } else {
         echo "<script>alert('Sorry. We do not have that information in our database.')</script>";
       }
-    } else if ($searchtype == "Verifiers") {
-      $sql = "SELECT *
-              FROM verifier
-              WHERE name LIKE '%$searchtext%'
-                OR v_id LIKE '%$searchtext%'";
-      $result = mysqli_query($conn, $sql);
+    } 
+    else if ($searchtype == "Verifiers") {
+      $sql = "SELECT * FROM verifier WHERE name LIKE ? OR v_id LIKE ?";
+      $stmt = mysqli_prepare($conn, $sql);
+      mysqli_stmt_bind_param($stmt, "ss", $searchtext, $searchtext);
+      mysqli_stmt_execute($stmt);
+      $result = mysqli_stmt_get_result($stmt);
       echo ("Happy1");
       if ($result->num_rows > 0) {
         $row = mysqli_fetch_assoc($result);
@@ -163,11 +184,11 @@ if (isset($_POST['submitsearch'])) {
         echo "<script>alert('Sorry. We do not have that information in our database.')</script>";
       }
     } else if ($searchtype == "Achievements") {
-      $sql = "SELECT *
-              FROM achievements
-              WHERE name LIKE '%$searchtext%'
-                OR keywords LIKE '%$searchtext%'";
-      $result = mysqli_query($conn, $sql);
+      $sql = "SELECT * FROM achievements WHERE name LIKE ? OR keywords LIKE ?";
+      $stmt = mysqli_prepare($conn, $sql);
+      mysqli_stmt_bind_param($stmt, "ss", $searchtext, $searchtext);
+      mysqli_stmt_execute($stmt);
+      $result = mysqli_stmt_get_result($stmt);
       if ($result->num_rows > 0) {
         $row = mysqli_fetch_assoc($result);
         $_SESSION['searchtext'] = $_POST['searchtext'];
@@ -177,12 +198,11 @@ if (isset($_POST['submitsearch'])) {
         echo "<script>alert('Sorry. We do not have that information in our database.')</script>";
       }
     } else if ($searchtype == "Events") {
-      $sql = "SELECT *
-              FROM events
-              WHERE name LIKE '%$searchtext%'
-                OR summary LIKE '%$searchtext%'
-                OR keywords LIKE '%$searchtext%'";
-      $result = mysqli_query($conn, $sql);
+      $sql = "SELECT * FROM events WHERE name LIKE ? OR summary LIKE ? OR keywords LIKE ?";
+      $stmt = mysqli_prepare($conn, $sql);
+      mysqli_stmt_bind_param($stmt, "sss", $searchtext, $searchtext,$searchtext);
+      mysqli_stmt_execute($stmt);
+      $result = mysqli_stmt_get_result($stmt);
       if ($result->num_rows > 0) {
         $row = mysqli_fetch_assoc($result);
         $_SESSION['searchtext'] = $_POST['searchtext'];
@@ -192,12 +212,11 @@ if (isset($_POST['submitsearch'])) {
         echo "<script>alert('Sorry. We do not have that information in our database.')</script>";
       }
     } else if ($searchtype == "Notices") {
-      $sql = "SELECT *
-              FROM notices
-              WHERE name LIKE '%$searchtext%'
-                OR content LIKE '%$searchtext%'
-                OR keywords LIKE '%$searchtext%'";
-      $result = mysqli_query($conn, $sql);
+      $sql = "SELECT * FROM events WHERE name LIKE ? OR content LIKE ? OR keywords LIKE ?";
+      $stmt = mysqli_prepare($conn, $sql);
+      mysqli_stmt_bind_param($stmt, "sss", $searchtext, $searchtext,$searchtext);
+      mysqli_stmt_execute($stmt);
+      $result = mysqli_stmt_get_result($stmt);
       if ($result->num_rows > 0) {
         $row = mysqli_fetch_assoc($result);
         $_SESSION['searchtext'] = $_POST['searchtext'];
@@ -206,14 +225,12 @@ if (isset($_POST['submitsearch'])) {
       } else {
         echo "<script>alert('Sorry. We do not have that information in our database.')</script>";
       }
-    } else {
+    } 
+  }
+    else {
       echo "<script>alert('Please choose an option to search.')</script>";
     }
   }
-}
-
-
-
 ?>
 
 <!DOCTYPE html>

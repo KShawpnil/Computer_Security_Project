@@ -3,61 +3,44 @@ include('db_connect.php');
 session_start();
 
 if (isset($_POST['submit'])) {
-    $user_name = $_POST['student-id'];
-    $email = $_POST['email'];
-    $full_name = $_POST['full-name'];
-    $phone = $_POST['phone'];
-    $department = $_POST['dept'];
-    $gender = $_POST['gender'];
-    $dob = $_POST['dob'];
-    $designation = $_POST['designation'];
-    $password = $_POST['password'];
-    $confirm_password = $_POST['confirm-pass'];
+  $user_name = mysqli_real_escape_string($conn, $_POST['student-id']);
+  $email = mysqli_real_escape_string($conn, $_POST['email']);
+  $full_name = mysqli_real_escape_string($conn, $_POST['full-name']);
+  $phone = mysqli_real_escape_string($conn, $_POST['phone']);
+  $department = mysqli_real_escape_string($conn, $_POST['dept']);
+  $gender = mysqli_real_escape_string($conn, $_POST['gender']);
+  $dob = mysqli_real_escape_string($conn, $_POST['dob']);
+  $designation = mysqli_real_escape_string($conn, $_POST['designation']);
+  $password = mysqli_real_escape_string($conn, $_POST['password']);
+  $confirm_password = mysqli_real_escape_string($conn, $_POST['confirm-pass']);
 
-    if ($password == $confirm_password) {
-        if (strlen($user_name) == 9 && is_numeric($user_name)) {
-            $sql = "SELECT * FROM student WHERE s_id='$user_name'";
-            $result = mysqli_query($conn, $sql);
+  if ($password == $confirm_password) {
+    $sql = "SELECT * FROM student WHERE s_id=?";
+    $stmt = mysqli_prepare($conn, $sql);
+    mysqli_stmt_bind_param($stmt, "s", $user_name);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
 
-            if ($result->num_rows == 0) {
-                
+    if ($result->num_rows == 0) {
+      $insertSql = "INSERT INTO student (s_id, name, phone, email, password, gender, dob, department) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+      $insertStmt = mysqli_prepare($conn, $insertSql);
+      mysqli_stmt_bind_param($insertStmt, "ssssssss", $user_name, $full_name, $phone, $email, $password, $gender, $dob, $department);
+      if (mysqli_stmt_execute($insertStmt)) {
+          header("location:index.php");
+          exit;
+      } 
+      else {
+          echo "<script>alert('Something went wrong!')</script>";
+      }
+      mysqli_stmt_close($insertStmt);
+  }
+  
+  mysqli_stmt_close($stmt);
 
-                $sql = "INSERT INTO student (s_id, name, phone, email, password, gender, dob, department)
-                        VALUES ('$user_name', '$full_name', '$phone', '$email', '$password', '$gender', '$dob', '$department')";
-
-                if (mysqli_query($conn, $sql)) {
-                    header("location:index.php");
-                    exit;
-                } else {
-                    echo "<script>alert('Something went wrong!')</script>";
-                }
-            } else {
-                echo "<script>alert('This username already exists.')</script>";
-            }
-        } else {
-            $sql2 = "SELECT * FROM verifier WHERE v_id='$user_name'";
-            $result2 = mysqli_query($conn, $sql2);
-
-            if ($result2->num_rows == 0) {
-                $hashed_password = password_hash($password, PASSWORD_BCRYPT);
-
-                $sql = "INSERT INTO verifier (v_id, name, phone, email, password, gender, dob, department, designation)
-                        VALUES ('$user_name', '$full_name', '$phone', '$email', '$hashed_password', '$gender', '$dob', '$department', '$designation')";
-
-                if (mysqli_query($conn, $sql)) {
-                    header("location:index.php");
-                    echo "<script>alert('Dear Verifier, your registration is complete.')</script>";
-                    exit;
-                } else {
-                    echo "<script>alert('Something went wrong!')</script>";
-                }
-            } else {
-                echo "<script>alert('This username already exists.')</script>";
-            }
-        }
-    } else {
-        echo "<script>alert('Passwords did not match.')</script>";
-    }
+  }
+  else {
+      echo "<script>alert('Passwords did not match.')</script>";
+  }
 }
 mysqli_close($conn);
 ?>

@@ -9,16 +9,20 @@ if(isset($_GET['d_id']) && isset($_SESSION['username'])) {
 
     include('db_connect.php');
     $id = $_GET["d_id"];
-    
-    
-    $sql9 = "DELETE FROM achievements WHERE a_id=$id";
-    // echo $sql9;
-    $query = mysqli_query($conn, $sql9) or die("Failed query " . mysqli_error($conn));
-    
-    if($query) {
-        header("Location: profile.php");
-    } else {
-        echo "Failed brah ";
+
+    $sql9 = "DELETE FROM achievements WHERE a_id=?";
+    $query = mysqli_prepare($conn, $sql9);
+    if($query){
+        mysqli_stmt_bind_param($query, "i", $id);
+        $result=mysqli_stmt_execute($query);  
+        if($result) {
+            header("Location: profile.php");
+            exit();
+        } 
+        else {
+            echo "Failed brah ";
+        }
+        mysqli_stmt_close($query);
     }
 }
 else if(!isset($_SESSION['username'])){
