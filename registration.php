@@ -5,6 +5,33 @@ include('db_connect.php');
 session_start();
 
 if (isset($_POST['submit'])) {
+  $user_response = $_POST['g-recaptcha-response'];
+  $secret_key = '6LcKegspAAAAABO--EOoseie5ezryoxc7yMlB9GQ';
+
+  $url = 'https://www.google.com/recaptcha/api/siteverify';
+  $data = [
+    'secret' => $secret_key,
+    'response' => $user_response
+  ];
+
+  $options = [
+    'http' => [
+      'header' => "Content-type: application/x-www-form-urlencoded\r\n",
+      'method' => 'POST',
+      'content' => http_build_query($data)
+    ]
+  ];
+
+  $context = stream_context_create($options);
+  $result = file_get_contents($url, false, $context);
+  $result_data = json_decode($result, true);
+
+  if (!$result_data['success']) {
+    
+    echo "<script>alert('reCAPTCHA verification failed.')</script>";
+    header("location:registration.php");
+
+  }
 
   $user_name = $_POST['student-id'];
   $email = $_POST['email'];
@@ -92,6 +119,7 @@ if (isset($_POST['submit'])) {
 <html lang="en">
 
 <head>
+  <script src="https://www.google.com/recaptcha/api.js" async defer></script>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>UIUSAT - Registration</title>
@@ -181,20 +209,6 @@ if (isset($_POST['submit'])) {
             </select>
           </div>
 
-          <!-- <div class="col col-lg-6">
-            <div class="mb-3">
-              <label for="exampleFormControlInput1" class="form-label"
-                >Address</label
-              >
-              <input
-                type="email"
-                class="form-control"
-                id="exampleFormControlInput1"
-                placeholder="name@example.com"
-              />
-            </div>
-          </div> -->
-
 
           <div class="col col-lg-6">
             <div class="mb-3">
@@ -221,6 +235,8 @@ if (isset($_POST['submit'])) {
               <input type="password" class="form-control" id="exampleFormControlInput1" placeholder="ex: Password" name="confirm-pass" required/>
             </div>
           </div>
+          <div class="g-recaptcha" data-sitekey="6LcKegspAAAAAB9QA24BeHFG-UBjcWbU_nRDKSUw"></div>
+          
 
 
           <div class="col col-lg-12 text-center">
