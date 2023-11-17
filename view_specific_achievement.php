@@ -92,64 +92,59 @@ if (isset($_POST['submitsearch'])) {
 }
 
 
-if(isset($_POST['tagbutton'])){
-  $sql4 = "SELECT * FROM notifications WHERE notifications.a_id='$achievement[a_id]' AND notifications.v_id='$_SESSION[tagv_id]'";
-  $result4 = mysqli_query($conn, $sql4);
-    if(!$result4->num_rows > 0){
-      $sql3 = "INSERT INTO notifications (a_id, s_id, v_id, ntf_status)
-              VALUES ('$achievement[a_id]', '$achievement[s_id]', '$_SESSION[tagv_id]',0)";
-      $result3 = mysqli_query($conn, $sql3);
-    }
-    else{
+if (isset($_POST['tagbutton'])) {
+  $sql4 = "SELECT * FROM notifications WHERE notifications.a_id=? AND notifications.v_id=?";
+  $stmt = mysqli_prepare($conn, $sql4);
+  mysqli_stmt_bind_param($stmt, "ss", $achievement['a_id'], $_SESSION['tagv_id']);
+  mysqli_stmt_execute($stmt);
+  $result4 = mysqli_stmt_get_result($stmt);
+
+  if (!$result4->num_rows > 0) {
+      $sql3 = "INSERT INTO notifications (a_id, s_id, v_id, ntf_status) VALUES (?, ?, ?, 0)";
+      $stmt1 = mysqli_prepare($conn, $sql3);
+      mysqli_stmt_bind_param($stmt1, "sss", $achievement['a_id'], $achievement['s_id'], $_SESSION['tagv_id']);
+      mysqli_stmt_execute($stmt1);
+      mysqli_stmt_close($stmt1);
+  } 
+  else {
       echo "<script>alert('You have already tagged this verifier')</script>";
-    }
+  }
+  mysqli_stmt_close($stmt);
 }
-if(isset($_GET['verifya_id'])){
-  $a_id=$_GET['verifya_id'];
-  $achievement_id=mysqli_real_escape_string($conn,$_GET['verifya_id']);
-  $sql="SELECT *
-        FROM achievements
-        WHERE a_id = '$achievement_id'";
-  $result=mysqli_query($conn,$sql);
-  $achievement=mysqli_fetch_assoc($result);
+
+if (isset($_GET['verifya_id'])) {
+  $a_id = $_GET['verifya_id'];
+  $achievement_id = mysqli_real_escape_string($conn, $_GET['verifya_id']);
+
+  $sql = "SELECT * FROM achievements WHERE a_id = ?";
+  $stmt = mysqli_prepare($conn, $sql);
+  mysqli_stmt_bind_param($stmt, "s", $achievement_id);
+  mysqli_stmt_execute($stmt);
+  $result = mysqli_stmt_get_result($stmt);
+
+  $achievement = mysqli_fetch_assoc($result);
   mysqli_free_result($result);
 
-
-  if(isset($_POST['verifybutton'])){
-    $sql5 = "UPDATE notifications
-            SET ntf_status=1
-            WHERE a_id='$_GET[verifya_id]';";
-    $result5 = mysqli_query($conn, $sql5);
-  
-    $sql6 = "UPDATE achievements
-            SET is_verified=1,
-                v_id='$username'
-            WHERE a_id='$_GET[verifya_id]';";
-    $result6 = mysqli_query($conn, $sql6);
-    ?>
-    <script type="text/javascript">
-    alert("Verified successfully.");
-    </script>
-    <?php
+  if (isset($_POST['verifybutton'])) {
+      $sql5 = "UPDATE notifications SET ntf_status=1 WHERE a_id=?";
+      $stmt5 = mysqli_prepare($conn, $sql5);
+      mysqli_stmt_bind_param($stmt5, "s", $_GET['verifya_id']);
+      mysqli_stmt_execute($stmt5);
+      $sql6 = "UPDATE achievements SET is_verified=1, v_id=? WHERE a_id=?";
+      $stmt6 = mysqli_prepare($conn, $sql6);
+      mysqli_stmt_bind_param($stmt6, "ss", $username, $_GET['verifya_id']);
+      mysqli_stmt_execute($stmt6);
+      echo "<script type='text/javascript'>alert('Verified successfully.');</script>";
   }
-  
-  if(isset($_POST['declinebutton'])){
-    $sql5 = "UPDATE notifications
-            SET ntf_status=1
-            WHERE a_id='$_GET[verifya_id]';";
-    $result5 = mysqli_query($conn, $sql5);
-  
-  
-    ?>
-    <script type="text/javascript">
-    alert("Declined successfully.");
-    </script>
-    <?php
+  if (isset($_POST['declinebutton'])) {
+      $sql5 = "UPDATE notifications SET ntf_status=1 WHERE a_id=?";
+      $stmt5 = mysqli_prepare($conn, $sql5);
+      mysqli_stmt_bind_param($stmt5, "s", $_GET['verifya_id']);
+      mysqli_stmt_execute($stmt5);
+      echo "<script type='text/javascript'>alert('Declined successfully.');</script>";
   }
+  mysqli_stmt_close($stmt);
 }
-
-
-
 ?>
 
 <!DOCTYPE html>

@@ -17,96 +17,91 @@ else{
   exit();
 }
 
-if(isset($_SESSION['searchtype'])){
-    $searchtype=mysqli_real_escape_string($conn,$_SESSION['searchtype']);
-    if(isset($_SESSION['searchtext'])){
-      $searchtext=mysqli_real_escape_string($conn,$_SESSION['searchtext']);
-    }
-    if($searchtype=="students"){
-        $sql = "SELECT *
-                FROM student
-                WHERE name LIKE '%$searchtext%'
-                OR s_id LIKE '%$searchtext%'";
-        $result = mysqli_query($conn, $sql);
-        $searchresults=mysqli_fetch_all($result,MYSQLI_ASSOC);
-        mysqli_free_result($result);
-    }
-    else if($searchtype=="verifiers"){
-        $sql = "SELECT *
-                FROM verifier
-                WHERE name LIKE '%$searchtext%'
-                OR v_id LIKE '%$searchtext%'";
-        $result = mysqli_query($conn, $sql);
-        $searchresults=mysqli_fetch_all($result,MYSQLI_ASSOC);
-        mysqli_free_result($result);
-    }
-    else if($searchtype=="achievements"){
-        $sql = "SELECT *
-                FROM achievements
-                WHERE name LIKE '%$searchtext%'
-                OR keywords LIKE '%$searchtext%'";
-        $result = mysqli_query($conn, $sql);
-        $searchresults=mysqli_fetch_all($result,MYSQLI_ASSOC);
-        mysqli_free_result($result);
-    }
-    else if($searchtype=="eventstudents"){
-        $sql = "SELECT *
-                FROM student
-                WHERE s_id IN
-                            (SELECT participates.s_id
-                              FROM participates
-                              INNER JOIN events
-                              ON participates.e_id=events.e_id
-                              WHERE events.e_id='$searchtext')";
-        $result = mysqli_query($conn, $sql);
-        $searchresults=mysqli_fetch_all($result,MYSQLI_ASSOC);
-        mysqli_free_result($result);
-    }
-}
+// if(isset($_SESSION['searchtype'])){
+//     $searchtype=mysqli_real_escape_string($conn,$_SESSION['searchtype']);
+//     if(isset($_SESSION['searchtext'])){
+//       $searchtext=mysqli_real_escape_string($conn,$_SESSION['searchtext']);
+//     }
+//     if($searchtype=="students"){
+//         $sql = "SELECT * FROM student WHERE name LIKE '%$searchtext%' OR s_id LIKE '%$searchtext%'";
+//         $result = mysqli_query($conn, $sql);
+//         $searchresults=mysqli_fetch_all($result,MYSQLI_ASSOC);
+//         mysqli_free_result($result);
+//     }
+//     else if($searchtype=="verifiers"){
+//         $sql = "SELECT *
+//                 FROM verifier
+//                 WHERE name LIKE '%$searchtext%'
+//                 OR v_id LIKE '%$searchtext%'";
+//         $result = mysqli_query($conn, $sql);
+//         $searchresults=mysqli_fetch_all($result,MYSQLI_ASSOC);
+//         mysqli_free_result($result);
+//     }
+//     else if($searchtype=="achievements"){
+//         $sql = "SELECT *
+//                 FROM achievements
+//                 WHERE name LIKE '%$searchtext%'
+//                 OR keywords LIKE '%$searchtext%'";
+//         $result = mysqli_query($conn, $sql);
+//         $searchresults=mysqli_fetch_all($result,MYSQLI_ASSOC);
+//         mysqli_free_result($result);
+//     }
+//     else if($searchtype=="eventstudents"){
+//         $sql = "SELECT *
+//                 FROM student
+//                 WHERE s_id IN
+//                             (SELECT participates.s_id
+//                               FROM participates
+//                               INNER JOIN events
+//                               ON participates.e_id=events.e_id
+//                               WHERE events.e_id='$searchtext')";
+//         $result = mysqli_query($conn, $sql);
+//         $searchresults=mysqli_fetch_all($result,MYSQLI_ASSOC);
+//         mysqli_free_result($result);
+//     }
+// }
 
-if (isset($_POST['submitsearch'])) {
-  if (!empty($_POST['searchtext'])) {
-    $searchtype = filter_input(INPUT_POST, 'searchtype', FILTER_SANITIZE_STRING);
-    $searchtext = '%' . mysqli_real_escape_string($conn, $_POST['searchtext']) . '%';
-    $sql = "";
-    $stmt = "";
-    if ($searchtype == "Students") {
-      $sql = "SELECT * FROM student WHERE name LIKE ? OR s_id LIKE ?";
-    } 
-    else if ($searchtype == "Verifiers") {
-        $sql = "SELECT * FROM verifier WHERE name LIKE ? OR v_id LIKE ?";
-    } 
-    else if ($searchtype == "Achievements") {
-        $sql = "SELECT * FROM achievements WHERE name LIKE ? OR keywords LIKE ?";
-    } 
-    else if ($searchtype == "Events") {
-        $sql = "SELECT * FROM events WHERE name LIKE ? OR summary LIKE ? OR keywords LIKE ?";
-    } 
-    else if ($searchtype == "Notices") {
-        $sql = "SELECT * FROM notices WHERE name LIKE ? OR content LIKE ? OR keywords LIKE ?";
-    }
-    $stmt=mysqli_prepare($conn,$sql);
-    if($stmt){
-      mysqli_stmt_bind_param($stmt, "ss", $searchtext, $searchtext);
-      mysqli_stmt_execute($stmt);
-      $result = mysqli_stmt_get_result($stmt);
-
-      if ($result->num_rows > 0) {
-          $row = mysqli_fetch_assoc($result);
-          $_SESSION['searchtext'] = $_POST['searchtext'];
-          $_SESSION['searchtype'] = strtolower($searchtype);
-          header("Location:view_all_profiles.php");
+if (isset($_SESSION['searchtype'])) {
+  $searchtype = mysqli_real_escape_string($conn, $_SESSION['searchtype']);
+  
+  if (isset($_SESSION['searchtext'])) {
+      $searchtext = mysqli_real_escape_string($conn, $_SESSION['searchtext']);
+      
+      if ($searchtype == "students") {
+          $sql = "SELECT * FROM student WHERE name LIKE ? OR s_id LIKE ?";
+          $stmt = mysqli_prepare($conn, $sql);
+          $searchParam = "%{$searchtext}%";
+          mysqli_stmt_bind_param($stmt, "ss", $searchParam, $searchParam);
       } 
-      else {
-          echo "<script>alert('Sorry. We do not have that information in our database.')</script>";
+      else if ($searchtype == "verifiers") {
+          $sql = "SELECT * FROM verifier WHERE name LIKE ? OR v_id LIKE ?";
+          $stmt = mysqli_prepare($conn, $sql);
+          $searchParam = "%{$searchtext}%";
+          mysqli_stmt_bind_param($stmt, "ss", $searchParam, $searchParam);
+      } 
+      else if ($searchtype == "achievements") {
+          $sql = "SELECT * FROM achievements WHERE name LIKE ? OR keywords LIKE ?";
+          $stmt = mysqli_prepare($conn, $sql);
+          $searchParam = "%{$searchtext}%";
+          mysqli_stmt_bind_param($stmt, "ss", $searchParam, $searchParam);
+      } 
+      else if ($searchtype == "eventstudents") {
+          $sql = "SELECT * FROM student WHERE s_id IN (SELECT participates.s_id FROM participates INNER JOIN events ON participates.e_id=events.e_id WHERE events.e_id=?)";
+          $stmt = mysqli_prepare($conn, $sql);
+          mysqli_stmt_bind_param($stmt, "s", $searchtext);
       }
+
+      mysqli_stmt_execute($stmt);
+
+      $result = mysqli_stmt_get_result($stmt);
+      $searchresults = mysqli_fetch_all($result, MYSQLI_ASSOC);
+
+      mysqli_free_result($result);
+
       mysqli_stmt_close($stmt);
-    }
-  }
-  else {
-    echo "<script>alert('Please choose an option to search.')</script>";
   }
 }
+
 
 mysqli_close($conn);
 

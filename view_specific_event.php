@@ -33,16 +33,18 @@ else{
   exit();
 }
 
-if(isset($_GET['e_id'])){
-    $e_id=$_GET['e_id'];
-    $event_id=mysqli_real_escape_string($conn,$_GET['e_id']);
-    $sql="SELECT *
-          FROM events
-          WHERE e_id = '$event_id'";
-    $result=mysqli_query($conn,$sql);
-    $event=mysqli_fetch_assoc($result);
-    mysqli_free_result($result);
+if (isset($_GET['e_id'])) {
+  $e_id = mysqli_real_escape_string($conn, $_GET['e_id']);
+  $sql = "SELECT * FROM events WHERE e_id = ?";
+  $stmt = mysqli_prepare($conn, $sql);
+  mysqli_stmt_bind_param($stmt, "s", $e_id);
+  mysqli_stmt_execute($stmt);
+  $result = mysqli_stmt_get_result($stmt);
+  $event = mysqli_fetch_assoc($result);
+  mysqli_stmt_close($stmt);
+  mysqli_free_result($result);
 }
+
 
 if (isset($_POST['submitsearch'])) {
   if (!empty($_POST['searchtext'])) {
@@ -94,16 +96,23 @@ if(!empty($_POST['viewparticipantsbutton'])){
     header("Location:view_all_profiles.php");
 }
 
-if(!empty($_POST['enrollbutton'])){
-  $sqlenroll = "INSERT INTO participates(s_id, e_id) 
-                VALUES ('$username','$e_id')";
-  $result = mysqli_query($conn, $sqlenroll);
-  $_SESSION['enrolled']='true';
+if (!empty($_POST['enrollbutton'])) {
+  $sql="INSERT INTO participates (s_id, e_id) VALUES (?, ?)";
+  $stmt = mysqli_prepare($conn, $sql);
+  mysqli_stmt_bind_param($stmt, "ss", $username,$e_id);
+  $result = mysqli_stmt_execute($stmt);
+  $_SESSION['enrolled'] = true;
+  mysqli_stmt_close($stmt);
 }
 
-$sqlstudentevents = "SELECT * FROM participates INNER JOIN events ON participates.e_id=events.e_id WHERE participates.s_id='$username' AND participates.e_id='$e_id'";
-$sqlstudenteventsresult = mysqli_query($conn, $sqlstudentevents);
+$sqlstudentevents = "SELECT * FROM participates INNER JOIN events ON participates.e_id=events.e_id WHERE participates.s_id=? AND participates.e_id=?";
+                     
+$stmt = mysqli_prepare($conn, $sqlstudentevents);
+mysqli_stmt_bind_param($stmt, "ss", $username, $e_id);
+mysqli_stmt_execute($stmt);
+$sqlstudenteventsresult = mysqli_stmt_get_result($stmt);
 $userstudentevents = mysqli_fetch_all($sqlstudenteventsresult, MYSQLI_ASSOC);
+mysqli_stmt_close($stmt);
 
 mysqli_close($conn);
 
