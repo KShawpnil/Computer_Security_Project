@@ -99,7 +99,6 @@ if (isset($_SESSION['username'])) {
     $stmt = mysqli_prepare($conn, $sql);
     mysqli_stmt_bind_param($stmt, "s", $username);
     mysqli_stmt_execute($stmt);
-    $result = mysqli_query($conn, $sql);
     $result = mysqli_stmt_get_result($stmt);
     $user = mysqli_fetch_assoc($result);
 
@@ -381,6 +380,8 @@ if (isset($_POST['submitsearch'])) {
                     <div data-aos="zoom-in" data-aos-delay="0">
                       <h2 class="h1"><?php echo $user['name']; ?></h2>
                       <p>Welcome to My Profile!</p>
+                      <a class="btn btn-outline-light btn-lg shadow-sm mt-1 me-3" href="remove_save_device.php?user_id=<?php echo $user['s_id']; ?>" data-aos="fade-right" data-aos-delay="700">Edit Settings</a>
+
                     </div>
                     <div class="header-social mb-3 d-print-none" data-aos="zoom-in" data-aos-delay="200">
                     </div>

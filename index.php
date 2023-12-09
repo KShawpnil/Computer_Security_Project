@@ -9,7 +9,7 @@ require 'PHPMailer/src/SMTP.php';
 
 $mail = new PHPMailer(true);
 
-function generateSecretKey($length = 6)
+function generateSecretKey($length = 4)
 {
     $characters = '0123456789';
     $otp = '';
@@ -38,21 +38,21 @@ $attempt = isset($_SESSION['attempt']) ? $_SESSION['attempt'] : 5;
 $trustedIp = ['::1', '127.0.0.1', '192.168.1.1'];
 
 $ipAddress = $_SERVER['REMOTE_ADDR'];
+$ip[] = $ipAddress;
 echo "<h2 font-size:20px'>Your IP Address is: $ipAddress<br></h2>";
 
-// GETTING ACTUAL USER IP ADDRESS
 if (isset($_SERVER['HTTP_X_FORWARDED_FOR'])) {
     $forwardedIps = explode(',', $_SERVER['HTTP_X_FORWARDED_FOR']);
     $ipAddress = trim(end($forwardedIps));
 }
 
 // CHECKING IP ADDRESS
-if (!in_array($ipAddress, $trustedIp)) {
-    echo '<body style="justify-content: center; ">';
-    echo '<div style="color: red;"><h2>Access denied!</h2></div>';
-    echo '</body>';
-    exit;
-}
+// if (!in_array($ipAddress, $trustedIp)) {
+//     echo '<body style="justify-content: center; ">';
+//     echo '<div style="color: red;"><h2>Access denied!</h2></div>';
+//     echo '</body>';
+//     exit;
+// }
 
 if (isset($_POST['submit'])) {
     $username = $_POST['username'];
@@ -74,40 +74,41 @@ if (isset($_POST['submit'])) {
               $_SESSION['user_email'] = $row['email'];
           
               if ($attempt > 0) {
-                  $DifferentIp= '3787348';
                   $id = $row['s_id'];
                   $db_ip_address_query = "SELECT ip_address FROM student_ip_addresses WHERE student_id = $id";
                   $result_ip = mysqli_query($conn, $db_ip_address_query);
           
-                  $user_ip_addresses = [];
-                  while ($ip_row = mysqli_fetch_assoc($result_ip)) {
+                   $user_ip_addresses = [];
+                    while ($ip_row = mysqli_fetch_assoc($result_ip)) {
                       $user_ip_addresses[] = $ip_row['ip_address'];
-                  }
+                    }
           
-                  if (in_array($ipAddress, $user_ip_addresses)) {
+                    if (in_array($ipAddress, $user_ip_addresses)) {
                       $_SESSION['username'] = $row['s_id'];
-                      header("Location: studenthome.php");
-                      exit;
-                  } else {
-                      $otp = generateSecretKey();
-                      $recipientEmail = $row['email'];
-                      $mail->addAddress($recipientEmail);
-                      $mail->Subject = 'Your OTP for Login';
-                      $mail->Body = 'Your OTP is: ' . $otp;
-          
-                      if ($mail->send()) {
-                          $_SESSION['otp'] = $otp;
-                          $_SESSION['otp_timestamp'] = time();
-                          echo 'OTP sent via email. Please check your email and enter the OTP within the specified time.';
-                          echo '<div id="otp-div">
-                                  <label for="otp" class="form-label">Enter OTP:</label>
-                                  <input type="text" class="form-control" id="otp" name="otp" />
-                                  <button type="button" class="btn btn-outline-primary" onclick="verifyOTP()">Verify</button>
-                                </div>';
-                      } else {
-                          echo 'Failed to send OTP via email.';
-                      }
-                  }
+                    header("Location: studenthome.php");
+                    exit;
+                } else {
+                    
+                    $otp = generateSecretKey();
+                    $recipientEmail = $row['email'];
+                    $mail->addAddress($recipientEmail);
+                    $mail->Subject = 'Your OTP for Login';
+                    $mail->Body = 'Your OTP is: ' . $otp;
+                
+                    if ($mail->send()) {
+                        $_SESSION['otp'] = $otp;
+                        $_SESSION['otp_timestamp'] = time();
+                        echo 'OTP sent via email. Please check your email and enter the OTP within the specified time.';
+                        echo  '<div id="otp-div" style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 200px;">
+                        <label for="otp" class="form-label">Enter OTP:</label>
+                        <input type="text" class="form-control" id="otp" name="otp" style="margin-bottom: 10px;">
+                        <button type="button" class="btn btn-outline-primary" onclick="verifyOTP()">Verify
+                        </button>
+                    </div>';
+                    } else {
+                        echo 'Failed to send OTP via email.';
+                    }
+                }
               } else {
                   echo '<div class="warning-message">hi</div>';
                   echo '<div class="warning-message">Try again after 10 seconds. You have reached max attempts.</div>';
@@ -158,39 +159,42 @@ if (isset($_POST['submit'])) {
               if ($attempt > 0) {
                 $id = $row['v_id'];
 
-                // This is not secure and is susceptible to SQL injection
                 $db_ip_address_query = "SELECT ip_address FROM verifier_ip_addresses WHERE verifier_id = '$id'";
                 $result_ip = mysqli_query($conn, $db_ip_address_query);
                 
-                $user_ip_addresses = [];
-                while ($ip_row = mysqli_fetch_assoc($result_ip)) {
-                    $user_ip_addresses[] = $ip_row['ip_address'];
-                }
+                 $user_ip_addresses = [];
+                 while ($ip_row = mysqli_fetch_assoc($result_ip)) {
+                     $user_ip_addresses[] = $ip_row['ip_address'];
+                 }
                 
-                if (in_array($ipAddress, $user_ip_addresses)) {
-                    $_SESSION['username'] = $row['v_id'];
-                    header("Location: studenthome.php");
-                    exit;
-                } else {
-                      $otp = generateSecretKey();
-                      $recipientEmail = $row['email'];
-                      $mail->addAddress($recipientEmail);
-                      $mail->Subject = 'Your OTP for Login';
-                      $mail->Body = 'Your OTP is: ' . $otp;
-          
-                      if ($mail->send()) {
-                          $_SESSION['otp'] = $otp;
-                          $_SESSION['otp_timestamp'] = time();
-                          echo 'OTP sent via email. Please check your email and enter the OTP within the specified time.';
-                          echo '<div id="otp-div">
-                                  <label for="otp" class="form-label">Enter OTP:</label>
-                                  <input type="text" class="form-control" id="otp" name="otp" />
-                                  <button type="button" class="btn btn-outline-primary" onclick="verifyOTP()">Verify</button>
-                                </div>';
-                      } else {
-                          echo 'Failed to send OTP via email.';
-                      }
+                 if (in_array($ipAddress, $user_ip_addresses)) {
+                  $_SESSION['username'] = $row['s_id'];
+                  header("Location: teacherhome.php");
+                  exit;
+              } else {
+                  
+              
+                  $otp = generateSecretKey();
+                  $recipientEmail = $row['email'];
+                  $mail->addAddress($recipientEmail);
+                  $mail->Subject = 'Your OTP for Login';
+                  $mail->Body = 'Your OTP is: ' . $otp;
+              
+                  if ($mail->send()) {
+                      $_SESSION['otp'] = $otp;
+                      $_SESSION['otp_timestamp'] = time();
+                      echo 'OTP sent via email. Please check your email and enter the OTP within the specified time.';
+                      echo 
+                      '<div id="otp-div" style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 200px;">
+                      <label for="otp" class="form-label">Enter OTP:</label>
+                      <input type="text" class="form-control" id="otp" name="otp" style="margin-bottom: 10px;">
+                      <button type="button" class="btn btn-outline-primary" onclick="verifyOTP()">Verify
+                      </button>
+                  </div>';
+                  } else {
+                      echo 'Failed to send OTP via email.';
                   }
+              }
               } else {
                   echo '<div class="warning-message">hi</div>';
                   echo '<div class="warning-message">Try again after 10 seconds. You have reached max attempts.</div>';
@@ -349,9 +353,14 @@ if (isset($_POST['submit'])) {
                   border-radius: 0%;
                   border: 0px transparent;
                 "
+                type="submit"
                 name="submit">
                 Login
               </button>
+            </div>
+            <div class="col col-lg-12 text-center">
+                <input type="checkbox" id="saveDevice" name="saveDevice" />
+                <label for="saveDevice">Save this device</label>
             </div>
             <div class="col col-lg-12 text-center mt-2">
               <p>
@@ -366,27 +375,37 @@ if (isset($_POST['submit'])) {
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-A3rJD856KowSb7dwlZdYEkO39Gagi7vIsF0jrRAoQmDKKtQBHUuLZ9AsSv4jD4Xa" crossorigin="anonymous"></script>
 
 <script>
-    function verifyOTP() {
 
+ function  verifyOTP() {
+    var username = "<?php echo $_SESSION['username']; ?>";
+    var ipAddress = "<?php echo $ipAddress; ?>";
+    var enteredOTP = document.getElementById('otp').value;
+    var storedOTP = "<?php echo $_SESSION['otp']; ?>";
 
-        var enteredOTP = document.getElementById('otp').value;
-        var storedOTP = "<?php echo $_SESSION['otp']; ?>";
-        
+    if (enteredOTP === storedOTP) {
+        sendLoginAlertEmail();
 
-        if (enteredOTP === storedOTP) {
+       $.ajax({
+            type: 'POST',
+            url: 'saveDevice.php',
+            data: { username: username, ipAddress: ipAddress },
+            success: function (response) {
+                console.log(response);
 
-            setTimeout(() => {
-                console.log('hi');
-                sendLoginAlertEmail();
-            }, 1000);
-
-            setTimeout(() => {
-                window.location.href = 'studenthome.php';
-            }, 3000);
-        } else {
-            alert('Incorrect OTP. Please try again.');
-        }
+                // Redirect only after the AJAX request is successful
+                window.location.replace('saveDevice.php?username=' + encodeURIComponent(username) + '&ipAddress=' + encodeURIComponent(ipAddress));
+            },
+            error: function (xhr, status, error) {
+                console.error("Ajax request failed: " + error);
+            }
+        });
+    } else {
+        alert('Incorrect OTP. Please try again.');
     }
+}
+
+
+
 
     function saveIpAddress() {
         var ipAddress = "<?php echo $ipAddress; ?>";

@@ -3,7 +3,8 @@
 include('db_connect.php');
 
 session_start();
-
+$username = $_SESSION['username'];
+echo $username;
 if (isset($_SESSION['username'])) {
   $username = mysqli_real_escape_string($conn, $_SESSION['username']);
 
