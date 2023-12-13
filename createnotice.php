@@ -1,79 +1,73 @@
 <?php
-
 include('db_connect.php');
 
 session_start();
 
 if (isset($_SESSION['username'])) {
-  $username = mysqli_real_escape_string($conn, $_SESSION['username']);
-  $_SESSION['username'] = $username;
+    $username = mysqli_real_escape_string($conn, $_SESSION['username']);
+    $_SESSION['username'] = $username;
 } else {
-  header("HTTP/1.0 404 Not Found");
-  echo "<h1>404 Not Found</h1>";
-  echo "The page that you have requested could not be found.";
-  exit();
+    header("HTTP/1.0 404 Not Found");
+    echo "<h1>404 Not Found</h1>";
+    echo "The page that you have requested could not be found.";
+    exit();
 }
 
 if (isset($_POST['submitsearch'])) {
-  if (!empty($_POST['searchtext'])) {
-    $searchtype = filter_input(INPUT_POST, 'searchtype', FILTER_SANITIZE_STRING);
-    $searchtext = '%' . mysqli_real_escape_string($conn, $_POST['searchtext']) . '%';
-    $sql = "";
-    $stmt = "";
-    if ($searchtype == "Students") {
-      $sql = "SELECT * FROM student WHERE name LIKE ? OR s_id LIKE ?";
-    } 
-    else if ($searchtype == "Verifiers") {
-        $sql = "SELECT * FROM verifier WHERE name LIKE ? OR v_id LIKE ?";
-    } 
-    else if ($searchtype == "Achievements") {
-        $sql = "SELECT * FROM achievements WHERE name LIKE ? OR keywords LIKE ?";
-    } 
-    else if ($searchtype == "Events") {
-        $sql = "SELECT * FROM events WHERE name LIKE ? OR summary LIKE ? OR keywords LIKE ?";
-    } 
-    else if ($searchtype == "Notices") {
-        $sql = "SELECT * FROM notices WHERE name LIKE ? OR content LIKE ? OR keywords LIKE ?";
-    }
-    $stmt=mysqli_prepare($conn,$sql);
-    if($stmt){
-      mysqli_stmt_bind_param($stmt, "ss", $searchtext, $searchtext);
-      mysqli_stmt_execute($stmt);
-      $result = mysqli_stmt_get_result($stmt);
+    if (!empty($_POST['searchtext'])) {
+        $searchtype = filter_input(INPUT_POST, 'searchtype', FILTER_SANITIZE_STRING);
+        $searchtext = '%' . mysqli_real_escape_string($conn, $_POST['searchtext']) . '%';
+        $sql = "";
+        $stmt = "";
+        if ($searchtype == "Students") {
+            $sql = "SELECT * FROM student WHERE name LIKE ? OR s_id LIKE ?";
+        } elseif ($searchtype == "Verifiers") {
+            $sql = "SELECT * FROM verifier WHERE name LIKE ? OR v_id LIKE ?";
+        } elseif ($searchtype == "Achievements") {
+            $sql = "SELECT * FROM achievements WHERE name LIKE ? OR keywords LIKE ?";
+        } elseif ($searchtype == "Events") {
+            $sql = "SELECT * FROM events WHERE name LIKE ? OR summary LIKE ? OR keywords LIKE ?";
+        } elseif ($searchtype == "Notices") {
+            $sql = "SELECT * FROM notices WHERE name LIKE ? OR content LIKE ? OR keywords LIKE ?";
+        }
+        $stmt = mysqli_prepare($conn, $sql);
+        if ($stmt) {
+            mysqli_stmt_bind_param($stmt, "ss", $searchtext, $searchtext);
+            mysqli_stmt_execute($stmt);
+            $result = mysqli_stmt_get_result($stmt);
 
-      if ($result->num_rows > 0) {
-          $row = mysqli_fetch_assoc($result);
-          $_SESSION['searchtext'] = $_POST['searchtext'];
-          $_SESSION['searchtype'] = strtolower($searchtype);
-          header("Location:view_all_profiles.php");
-      } 
-      else {
-          echo "<script>alert('Sorry. We do not have that information in our database.')</script>";
-      }
-      mysqli_stmt_close($stmt);
+            if ($result->num_rows > 0) {
+                $row = mysqli_fetch_assoc($result);
+                $_SESSION['searchtext'] = htmlspecialchars($_POST['searchtext'], ENT_QUOTES, 'UTF-8');
+                $_SESSION['searchtype'] = strtolower($searchtype);
+                header("Location:view_all_profiles.php");
+            } else {
+                echo "<script>alert('Sorry. We do not have that information in our database.')</script>";
+            }
+            mysqli_stmt_close($stmt);
+        }
+    } else {
+        echo "<script>alert('Please choose an option to search.')</script>";
     }
-  }
-  else {
-    echo "<script>alert('Please choose an option to search.')</script>";
-  }
 }
 
 if (isset($_POST['submit'])) {
+    $noticename = htmlspecialchars($_POST['noticename'], ENT_QUOTES, 'UTF-8');
+    $noticecontent = htmlspecialchars($_POST['noticecontent'], ENT_QUOTES, 'UTF-8');
+    $eventkeywords = htmlspecialchars($_POST['noticekeywords'], ENT_QUOTES, 'UTF-8');
 
-  $noticename = $_POST['noticename'];
-  $noticecontent = $_POST['noticecontent'];
-  $eventkeywords = $_POST['noticekeywords'];
+    $sql = "INSERT INTO notices(name, content, post_date, keywords, v_id) 
+            VALUES (?, ?, NOW(), ?, ?)";
+    $stmt = mysqli_prepare($conn, $sql);
+    if ($stmt) {
+        mysqli_stmt_bind_param($stmt, "ssss", $noticename, $noticecontent, $eventkeywords, $username);
+        mysqli_stmt_execute($stmt);
+        mysqli_stmt_close($stmt);
+        echo "First Query";
+    }
 
-  $sql = "INSERT INTO notices(name, content, post_date, keywords, v_id) 
-            VALUES ('$noticename','$noticecontent',NOW(),'$eventkeywords','$username')";
-  $result = mysqli_query($conn, $sql);
-
-  if ($result) {
-    echo ("First Query");
-  }
-
-  header("Location: profile.php");
-  mysqli_close($conn);
+    header("Location: profile.php");
+    mysqli_close($conn);
 }
 
 ?>

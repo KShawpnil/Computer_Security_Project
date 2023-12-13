@@ -20,28 +20,33 @@ if (isset($_POST['createeventbutton'])) {
   header("Location: createevent.php");
 }
 
-if(isset($_SESSION['searchtype'])){
-  $searchtext=mysqli_real_escape_string($conn,$_SESSION['searchtext']);
-  $sql = "SELECT *
-          FROM events
-          WHERE name LIKE '%$searchtext%'
-          OR summary LIKE '%$searchtext%'
-          OR keywords LIKE '%$searchtext%'";
-  $result = mysqli_query($conn, $sql);
-  $events=mysqli_fetch_all($result,MYSQLI_ASSOC);
-  mysqli_free_result($result);
-  unset($_SESSION["searchtype"]);
-}
-else{
-  $sql = "SELECT *
-          FROM events
-          HAVING event_date>NOW()
-          ORDER BY event_date DESC";
-  $result = mysqli_query($conn, $sql);
-  $events=mysqli_fetch_all($result,MYSQLI_ASSOC);
-  mysqli_free_result($result);
+if (isset($_SESSION['searchtype'])) {
+  $searchtext = $_SESSION['searchtext'];
+  $searchtext = "%$searchtext%"; 
 
+  $sql = "SELECT * FROM notices WHERE name LIKE ? OR content LIKE ? OR keywords LIKE ?";
+  
+  $stmt = mysqli_prepare($conn, $sql);
+  mysqli_stmt_bind_param($stmt, "sss", $searchtext, $searchtext, $searchtext);
+  mysqli_stmt_execute($stmt);
+
+  $result = mysqli_stmt_get_result($stmt);
+  $notices = mysqli_fetch_all($result, MYSQLI_ASSOC);
+
+  mysqli_free_result($result);
+  mysqli_stmt_close($stmt);
+
+  unset($_SESSION['searchtype']);
+} 
+else {
+  $sql = "SELECT * FROM notices ORDER BY post_date DESC";
+  
+  $result = mysqli_query($conn, $sql);
+  $notices = mysqli_fetch_all($result, MYSQLI_ASSOC);
+
+  mysqli_free_result($result);
 }
+
 
 if (isset($_POST['submitsearch'])) {
   if (!empty($_POST['searchtext'])) {

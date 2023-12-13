@@ -121,8 +121,11 @@
 
         <?php
         $connection = mysqli_connect('localhost', 'root', '', 'bloodbucket');
-        $query = "SELECT * FROM registration WHERE id != 3";
-        $values = mysqli_query($connection, $query);
+        $query = $connection->prepare("SELECT * FROM registration WHERE id != ?");
+        $query->bind_param("i", $user_id);
+        $user_id = 3;
+        $query->execute();
+        $values = $query->get_result();
         ?>
         <table class="table my-3">
             <thead class="thead-dark">
@@ -143,17 +146,17 @@
             <?php
             while ($row = mysqli_fetch_assoc($values)) {
                 $id = $row['id'];
-                $firstname = $row['firstname'];
-                $lastname = $row['lastname'];
-                $phone = $row['phone'];
-                $email = $row['email'];
-                $age = $row['age'];
-                $gender = $row['gender'];
-                $height = $row['height'];
-                $bg = $row['bg'];
-                $add_zilla = $row['add_zilla'];
-                $add_upazilla = $row['add_upazilla'];
-                $password = $row['password'];
+                $firstname = htmlspecialchars($row['firstname'], ENT_QUOTES, 'UTF-8');
+                $lastname = htmlspecialchars($row['lastname'], ENT_QUOTES, 'UTF-8');
+                $phone = htmlspecialchars($row['phone'], ENT_QUOTES, 'UTF-8');
+                $email = htmlspecialchars($row['email'], ENT_QUOTES, 'UTF-8');
+                $age = htmlspecialchars($row['age'], ENT_QUOTES, 'UTF-8');
+                $gender = htmlspecialchars($row['gender'], ENT_QUOTES, 'UTF-8');
+                $height = htmlspecialchars($row['height'], ENT_QUOTES, 'UTF-8');
+                $bg = htmlspecialchars($row['bg'], ENT_QUOTES, 'UTF-8');
+                $add_zilla = htmlspecialchars($row['add_zilla'], ENT_QUOTES, 'UTF-8');
+                $add_upazilla = htmlspecialchars($row['add_upazilla'], ENT_QUOTES, 'UTF-8');
+
             ?>
                 <tbody>
                     <tr>

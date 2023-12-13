@@ -76,7 +76,7 @@ if (isset($_POST['submitsearch'])) {
 
       if ($result->num_rows > 0) {
           $row = mysqli_fetch_assoc($result);
-          $_SESSION['searchtext'] = $_POST['searchtext'];
+          $_SESSION['searchtext'] = htmlspecialchars($_POST['searchtext']);
           $_SESSION['searchtype'] = strtolower($searchtype);
           header("Location:view_all_profiles.php");
       } 

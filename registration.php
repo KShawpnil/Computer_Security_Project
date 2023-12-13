@@ -139,21 +139,6 @@ mysqli_close($conn);
             </select>
           </div>
 
-          <!-- <div class="col col-lg-6">
-            <div class="mb-3">
-              <label for="exampleFormControlInput1" class="form-label"
-                >Address</label
-              >
-              <input
-                type="email"
-                class="form-control"
-                id="exampleFormControlInput1"
-                placeholder="name@example.com"
-              />
-            </div>
-          </div> -->
-
-
           <div class="col col-lg-6">
             <div class="mb-3">
               <label for="exampleFormControlInput1" class="form-label">Date Of Birth</label>

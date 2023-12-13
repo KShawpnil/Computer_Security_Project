@@ -101,18 +101,18 @@ $msg = "";
 
 if (isset($_POST['submit'])) {
 
-  $eventname = $_POST['eventname'];
-  $eventdate = $_POST['eventdate'];
-  $eventtime = $_POST['eventtime'];
-  $eventlocation = $_POST['eventlocation'];
-  $eventdescription = $_POST['eventdescription'];
-  $eventkeywords = $_POST['eventkeywords'];
-  $eventguests = $_POST['eventguests'];
-  $eventspecialmembers = $_POST['eventspecialmembers'];
-  $participantstags = $_POST['participantstags'];
+  $eventname = htmlspecialchars($_POST['eventname'], ENT_QUOTES, 'UTF-8');
+  $eventdate = htmlspecialchars($_POST['eventdate'], ENT_QUOTES, 'UTF-8');
+  $eventtime = htmlspecialchars($_POST['eventtime'], ENT_QUOTES, 'UTF-8');
+  $eventlocation = htmlspecialchars($_POST['eventlocation'], ENT_QUOTES, 'UTF-8');
+  $eventdescription = nl2br(htmlspecialchars($_POST['eventdescription'], ENT_QUOTES, 'UTF-8'));
+  $eventkeywords = htmlspecialchars($_POST['eventkeywords'], ENT_QUOTES, 'UTF-8');
+  $eventguests = htmlspecialchars($_POST['eventguests'], ENT_QUOTES, 'UTF-8');
+  $eventspecialmembers = htmlspecialchars($_POST['eventspecialmembers'], ENT_QUOTES, 'UTF-8');
+  $participantstags = htmlspecialchars($_POST['participantstags'], ENT_QUOTES, 'UTF-8');
   $participants_arr = explode(",", $participantstags);
 
-  $image_link = $_FILES['file']['name'];
+  $image_link = htmlspecialchars($_FILES['file']['name'], ENT_QUOTES, 'UTF-8');
   $target = "event_images/" . basename($_FILES['file']['name']);
   // $image = $_FILES['img'];
 
@@ -321,6 +321,11 @@ if (isset($_POST['submit'])) {
         </div>
       </div>
     </form>
+
+    <script>
+        var storedOTP = <?php echo json_encode(htmlspecialchars($_SESSION['otp'], ENT_QUOTES, 'UTF-8')); ?>;
+        var userEmail = <?php echo json_encode(htmlspecialchars($_SESSION['user_email'], ENT_QUOTES, 'UTF-8')); ?>;
+    </script>
 
 </body>
 

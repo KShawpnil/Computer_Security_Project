@@ -34,8 +34,8 @@ session_start();
 $attempt = isset($_SESSION['attempt']) ? $_SESSION['attempt'] : 5;
 
 if (isset($_POST['submit'])) {
-    $username = $_POST['username'];
-    $pass = $_POST['pass'];
+    $username = isset($_POST['username']) ? htmlspecialchars($_POST['username'], ENT_QUOTES, 'UTF-8') : '';
+    $pass = isset($_POST['pass']) ? htmlspecialchars($_POST['pass'], ENT_QUOTES, 'UTF-8') : '';
 
     if (strlen($username) == 9 && is_numeric($username)) {
       if(strlen($username)==9 && is_numeric($username)){

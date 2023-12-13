@@ -7,21 +7,27 @@ session_start();
 if(isset($_SESSION['username'])){
   $username=mysqli_real_escape_string($conn,$_SESSION['username']);
 
-  if(strlen($username)==9 && is_numeric($username)){
-    $sql = "SELECT * FROM student WHERE s_id='$username'";
-    $result = mysqli_query($conn, $sql);
-    $user=mysqli_fetch_assoc($result);
+  if (strlen($username) == 9 && is_numeric($username)) {
+    $sql = "SELECT * FROM student WHERE s_id=?";
+  } else {
+      $sql = "SELECT * FROM verifier WHERE v_id=?";
+      $sql2 = "SELECT * FROM notifications INNER JOIN achievements ON notifications.a_id=achievements.a_id WHERE notifications.v_id=? AND notifications.ntf_status=0";
   }
-  else{
-    $sql = "SELECT * FROM verifier WHERE v_id='$username'";
-    $result = mysqli_query($conn, $sql);
-    $user=mysqli_fetch_assoc($result);
 
-    $sql2 = "SELECT * FROM notifications INNER JOIN achievements ON notifications.a_id=achievements.a_id WHERE notifications.v_id='$username' AND notifications.ntf_status=0";
-    $result2 = mysqli_query($conn, $sql2);
-    $notifications=mysqli_fetch_all($result2,MYSQLI_ASSOC);
+  $stmt = mysqli_prepare($conn, $sql);
+  mysqli_stmt_bind_param($stmt, "s", $username);
+  mysqli_stmt_execute($stmt);
+  $result = mysqli_stmt_get_result($stmt);
+  $user = mysqli_fetch_assoc($result);
+
+  if (isset($sql2)) {
+      $stmt2 = mysqli_prepare($conn, $sql2);
+      mysqli_stmt_bind_param($stmt2, "s", $username);
+      mysqli_stmt_execute($stmt2);
+      $result2 = mysqli_stmt_get_result($stmt2);
+      $notifications = mysqli_fetch_all($result2, MYSQLI_ASSOC);
   }
-  
+
   $_SESSION['username'] = $username;
   // mysqli_free_result($result);
 

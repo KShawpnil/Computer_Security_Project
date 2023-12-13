@@ -275,29 +275,10 @@ if (isset($_POST['submitsearch'])) {
           </button>
           <!-- Collection of nav links, forms, and other content for toggling -->
           <div id="navbarCollapse" class="collapse navbar-collapse justify-content-start">
-            <!-- <form class="navbar-form form-inline">
-              <div class="input-group search-box" style="position:relative; left:-10px">
-                <input type="text" id="search" class="form-control" placeholder="Search here...">
-                <span class="input-group-addon"><i class="material-icons"></i></span>
-              </div>
-            </form> -->
-
-            <!-- <form  action="search.php" method="POST" class="navbar-form form-inline">
-              <div class="input-group search-box" style="position:relative; left: -20px;">
-                  <input type="text" name="searchtext" class="form-control" placeholder="Search here...">
-                  <button type="submit" name="searchbutton">Search</button>
-                  <span class="input-group-addon"><i class="material-icons"></i></span>
-              </div>
-            </form> -->
 
             <form method="POST">
               <div class="search">
                 <input type="text" name="searchtext" id="search" placeholder="Search" style="position:relative; top: 40px; width: 200px; left:-50px; padding:6px; border-radius:5px;">
-
-
-
-                <!-- <div class="col col-lg-6"> -->
-                <!-- <label for="exampleFormControlInput1" class="form-label">Choose From Below</label> -->
                 <select class="form-select" name="searchtype" aria-label="Default select example" style="position:relative; left: 170px; width: 150px">
                   <option selected>Filter</option>
                   <option value="Students">Students</option>
@@ -306,14 +287,9 @@ if (isset($_POST['submitsearch'])) {
                   <option value="Events">Events</option>
                   <option value="Notices">Notices</option>
                 </select>
-                <!-- </div> -->
-
-                <!-- <button name="submitfiltersearch" class="btn">Search</button> -->
                 <button name="submitsearch" class="btn" style="position:relative; top: -40px; left: 280px; background-color:#FFF; ">Search</button>
               </div>
             </form>
-
-
             <?php
             ?>
 
@@ -390,22 +366,12 @@ if (isset($_POST['submitsearch'])) {
                       <div class="d-print-none" style="float: right inherit;">
 
                         <a class="btn btn-outline-light btn-lg shadow-sm mt-1 me-3" style="text-decoration: none; color: #FFF" href="pdf.php?s_id=<?php echo $user["s_id"] ?>" data-aos="fade-right" data-aos-delay="700">Generate CV</a>
-                        <!-- <a class="btn btn-info btn-lg shadow-sm mt-1" name="changeprofilepicturebutton" data-aos="fade-left" data-aos-delay="700">Change Profile Picture</a> -->
-                        <!-- <label for="exampleFormControlInput1" class="form-label">Select Image </label>
-                      <form action="" method="POST">
-                      <input type="file" class="form-control" id="exampleFormControlInput1" name="file">
-                      <div class="inputfield">
-                        <input type="submitpicture" value="Update Picture" class="btn" name="submitpicture">
-                      </div>
-                      </form>
-                      </div> -->
+                        
                     </form>
                   <?php
                   }
                   ?>
                     
-                    <!-- <div class="d-print-none"><a class="btn btn-outline-light btn-lg shadow-sm mt-1 me-3" href="pdf.php?s_id=<?php echo $user["s_id"] ?>" data-aos="fade-right" data-aos-delay="700">Download CV</a></div> -->
-
                   </div>
                 </div>
               </div>
@@ -416,9 +382,6 @@ if (isset($_POST['submitsearch'])) {
           <div class="about-section">
             <div class="row">
               <div class="col-md-6">
-                <!----  <h2 class="h2 fw-light mb-4">About Me</h2>
-       <p>Hello! I’m Walter Patterson. I am passionate about UI/UX design and Web Design. I am a skilled <strong>front-end developer</strong> and master of graphic design tools such as Photoshop and Sketch. I am a quick learner and a team worker that gets the job done.</p>
-          <p>I can easily capitalize on low hanging fruits and quickly maximize timely deliverables for real-time schemas.</p>-->
               </div>
               
               <div class="bio">
@@ -449,24 +412,14 @@ if (isset($_POST['submitsearch'])) {
                     <div class="col-sm-7">
                       <div class="pb-2"><?php echo $user['phone']; ?></div>
                     </div>
-                    <!-- <div class="col-sm-5">
-              <div class="pb-2 fw-bolder"><i class="fas fa-map-marker-alt pe-2 text-muted" style="width:24px;opacity:0.85;"></i> Address</div>
-            </div>
-            <div class="col-sm-7">
-              <div class="pb-2">131 W, City Center, New York, U.S.A</div>
-            </div> -->
+                    
                     <div class="col-sm-5">
                       <div class="pb-2 fw-bolder"><i class="fas fa-map-marker-alt pe-2 text-muted" style="width:24px;opacity:0.85;"></i> Department</div>
                     </div>
                     <div class="col-sm-7">
                       <div class="pb-2"><?php echo $user['department']; ?></div>
                     </div>
-                    <!-- <div class="col-sm-5">
-              <div class="pb-2 fw-bolder"><i class="fas fa-map-marker-alt pe-2 text-muted" style="width:24px;opacity:0.85;"></i> CGPA</div>
-            </div>
-            <div class="col-sm-7">
-              <div class="pb-2">3.77</div>
-            </div> -->
+                    
                     <div class="col-sm-5">
                       <div class="pb-2 fw-bolder"><i class="fas fa-map-marker-alt pe-2 text-muted" style="width:24px;opacity:0.85;"></i> DOB</div>
                     </div>
@@ -486,8 +439,6 @@ if (isset($_POST['submitsearch'])) {
           </div>
         </div>
       </div>
-
-
       <?php
       if (strlen($username) == 9 && is_numeric($username)) {
       ?>
@@ -525,7 +476,6 @@ if (isset($_POST['submitsearch'])) {
     <form action="" method="POST">
       <div class="input-group" style="float: right inherit;">
         <button name="submitachievement" href="submit.php" class="btn1">Add Achievement</button>
-        <!---style="color: grey; width: 70px" <a style="color: grey; width: 70px" name="submit1" href="edit_profile.php" > Edit Profile</a> -->
       </div>
       <div class="shadow-1-strong bg-white my-5 p-5" id="experience">
         <div class="work-experience-section">
@@ -564,7 +514,6 @@ if (isset($_POST['submitsearch'])) {
                       <a class="btn5" style="text-decoration: none; color: white;" href="delete.php?d_id=<?php echo $userproject["a_id"] ?>">Delete</a>
                     </div>
                     <br></br>
-                    <!-- <br></br> -->
                   </div>
                 </div>
               </div>
@@ -612,7 +561,6 @@ if (isset($_POST['submitsearch'])) {
                       <a class="btn5" style="text-decoration: none; color: white;" href="delete.php?d_id=<?php echo $userinternship["a_id"] ?>">Delete</a>
                     </div>
                     <br></br>
-                    <!-- <br></br> -->
                   </div>
                 </div>
               </div>
@@ -659,7 +607,6 @@ if (isset($_POST['submitsearch'])) {
                       <a class="btn5" style="text-decoration: none; color: white;" href="delete.php?d_id=<?php echo $useraward["a_id"] ?>">Delete</a>
                     </div>
                     <br></br>
-                    <!-- <br></br> -->
                   </div>
                 </div>
               </div>
@@ -706,7 +653,6 @@ if (isset($_POST['submitsearch'])) {
                       <a class="btn5" style="text-decoration: none; color: white;" href="delete.php?d_id=<?php echo $userextracurricularactivity["a_id"] ?>">Delete</a>
                     </div>
                     <br></br>
-                    <!-- <br></br> -->
                   </div>
                 </div>
               </div>
@@ -734,8 +680,6 @@ if (isset($_POST['submitsearch'])) {
                 }
               }
               ?>
-              <!-- <li>UIU megahunt</li>
-        <li>UIU megahunt</li> -->
             </ol>
           </div>
         </div>
@@ -746,43 +690,6 @@ if (isset($_POST['submitsearch'])) {
       }
 ?>
 
-<!-- <div class="shadow-1-strong bg-white my-5 p-5 d-print-none" id="portfolio">
-    <div class="portfolio-section">
-      <h2 class="h2 fw-light mb-4">Portfolio</h2>
-      <div class="row g-0">
-        <div class="col-md-6"><a href="https://dribbble.com/" target="_blank"><img class="img-fluid" src="images/project-1.jpg" width="800" height="500" /></a></div>
-        <div class="col-md-6 d-flex align-items-center" data-aos="fade-left" data-aos-delay="100">
-          <div class="m-4 mt-md-2">
-            <p class="text-teal text-small">Frontend / HTML / CSS / JavaScript</p>
-            <h3>Photo Agency Website</h3>
-            <p class="text-muted">Built highly performant website front end for a Photography agency. Delivered codebase in HTML, CSS and modern JavaScript.</p>
-          </div>
-        </div>
-      </div>
-      <div class="row g-0 portfolio-reverse">
-        <div class="col-md-6 d-flex align-items-center" data-aos="fade-right" data-aos-delay="100">
-          <div class="m-4 mt-md-2 text-end">
-            <p class="text-teal text-small">Graphic Design / Photoshop / Sketch</p>
-            <h3>Restaurant Website Design</h3>
-            <p class="text-muted">Web design for popular resturant chain involving complex layouts done in both Photoshop and Sketch. Collaborated with back-end and front-end team for finished product.</p>
-          </div>
-        </div>
-        <div class="col-md-6"><a href="https://www.behance.net/" target="_blank"><img class="img-fluid" src="images/project-2.jpg" width="800" height="500" /></a></div>
-      </div>
-      <div class="row g-0">
-        <div class="col-md-6"><a href="https://dribbble.com/" target="_blank"><img class="img-fluid" src="images/project-3.jpg" width="800" height="500" /></a></div>
-        <div class="col-md-6 d-flex align-items-center" data-aos="fade-left" data-aos-delay="100">
-          <div class="m-4 mt-md-2">
-            <p class="text-teal text-small">Frontend / HTML / CSS / JavaScript</p>
-            <h3>E-Commerce Website</h3>
-            <p class="text-muted">Built highly performant website for an E-commerce Portal. Worked with back-end team to timely deliver codebase in HTML, CSS and modern JavaScript.</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div> -->
-
-<!-- </footer> -->
 <script src="scripts/mdb.min.js?ver=1.2.1"></script>
 <script src="scripts/aos.js?ver=1.2.1"></script>
 <script src="scripts/main.js?ver=1.2.1"></script>
