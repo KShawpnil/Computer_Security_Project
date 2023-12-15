@@ -221,26 +221,29 @@ mysqli_close($conn);
 </div>
     <div class="inputfield">
         <label>Headline: </label>
-        <input type="text" class="input" value="<?php echo $notice['name']; ?>" name="noticename" readonly>
-    </div>  
+        <input type="text" class="input" value="<?php echo htmlspecialchars($notice['name'], ENT_QUOTES, 'UTF-8'); ?>" name="noticename" readonly>
+    </div>
+
     <div class="inputfield">
         <label>Posted On: </label>
-        <input type="text" class="input" value="<?php echo $notice['post_date']; ?>" name="noticepostdate" readonly>
-    </div> 
+        <input type="text" class="input" value="<?php echo htmlspecialchars($notice['post_date'], ENT_QUOTES, 'UTF-8'); ?>" name="noticepostdate" readonly>
+    </div>
+
     <div class="inputfield">
         <label>Content: </label>
-        <textarea type="text" rows="20" cols="50" class="input" name="noticecontent" readonly><?php echo $notice['content']; ?>
-        </textarea>
-        
+        <textarea type="text" rows="20" cols="50" class="input" name="noticecontent" readonly><?php echo htmlspecialchars($notice['content'], ENT_QUOTES, 'UTF-8'); ?></textarea>
     </div>
+
     <div class="inputfield">
         <label>Keywords: </label>
-        <input type="text" class="input" value="<?php echo $notice['keywords']; ?>" name="noticekeywords" readonly>
+        <input type="text" class="input" value="<?php echo htmlspecialchars($notice['keywords'], ENT_QUOTES, 'UTF-8'); ?>" name="noticekeywords" readonly>
     </div>
+
     <div class="inputfield">
         <label>Posted By: </label>
-        <input type="text" class="input" value="<?php echo $notice['v_id']; ?>" name="noticeverifier" readonly>
+        <input type="text" class="input" value="<?php echo htmlspecialchars($notice['v_id'], ENT_QUOTES, 'UTF-8'); ?>" name="noticeverifier" readonly>
     </div>
+
 </div>
 </div>	
 

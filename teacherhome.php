@@ -1,108 +1,107 @@
 <?php
-
 include('db_connect.php');
 
 session_start();
 
-if(isset($_SESSION['username'])){
-  $username=mysqli_real_escape_string($conn,$_SESSION['username']);
+if (isset($_SESSION['username'])) {
+    $username = mysqli_real_escape_string($conn, $_SESSION['username']);
 
-  if(strlen($username)==9 && is_numeric($username)){
-    $sql = "SELECT * FROM student WHERE s_id=?";
+    if (strlen($username) == 9 && is_numeric($username)) {
+        $sql = "SELECT * FROM student WHERE s_id=?";
+    } else {
+        $sql = "SELECT * FROM verifier WHERE v_id=?";
+    }
+
     $stmt = mysqli_prepare($conn, $sql);
     mysqli_stmt_bind_param($stmt, "s", $username);
     mysqli_stmt_execute($stmt);
     $result = mysqli_stmt_get_result($stmt);
-    $user=mysqli_fetch_assoc($result);
-  }
-  else{
-    $sql = "SELECT * FROM verifier WHERE v_id=?";
+    $user = mysqli_fetch_assoc($result);
+
+    $sql = "SELECT * FROM events WHERE event_date > NOW() ORDER BY event_date DESC LIMIT 3";
     $stmt = mysqli_prepare($conn, $sql);
-    mysqli_stmt_bind_param($stmt, "s", $username);
     mysqli_stmt_execute($stmt);
     $result = mysqli_stmt_get_result($stmt);
-    $user=mysqli_fetch_assoc($result);
-  }
+    $events = mysqli_fetch_all($result, MYSQLI_ASSOC);
 
-  $sql = "SELECT *
-          FROM events
-          HAVING event_date>NOW()
-          ORDER BY event_date DESC LIMIT 3";
-  $result = mysqli_query($conn, $sql);
-  $events=mysqli_fetch_all($result,MYSQLI_ASSOC);
+    $sql = "SELECT * FROM notices ORDER BY post_date DESC LIMIT 3";
+    $stmt = mysqli_prepare($conn, $sql);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+    $notices = mysqli_fetch_all($result, MYSQLI_ASSOC);
 
-  $sql = "SELECT *
-          FROM notices
-          ORDER BY post_date DESC LIMIT 3";
-  $result = mysqli_query($conn, $sql);
-  $notices=mysqli_fetch_all($result,MYSQLI_ASSOC);
+    if (isset($_POST['createeventbutton'])) {
+        header("Location: createevent.php");
+        exit();
+    }
 
-  if (isset($_POST['createeventbutton'])) {
-    header("Location: createevent.php");
-  }
+    if (isset($_POST['createnoticebutton'])) {
+        header("Location: createnotice.php");
+        exit();
+    }
 
-  if (isset($_POST['createnoticebutton'])) {
-    header("Location: createnotice.php");
-  }
-  
-  $_SESSION['username'] = $username;
-  // mysqli_free_result($result);
-
+    $_SESSION['username'] = $username;
 }
-else{
-  header("HTTP/1.0 404 Not Found");
-  echo "<h1>404 Not Found</h1>";
-  echo "The page that you have requested could not be found.";
-  exit();
+else {
+    header("HTTP/1.0 404 Not Found");
+    echo "<h1>404 Not Found</h1>";
+    echo "The page that you have requested could not be found.";
+    exit();
 }
 
 if (isset($_POST['submitsearch'])) {
-  if (!empty($_POST['searchtext'])) {
-    $searchtype = filter_input(INPUT_POST, 'searchtype', FILTER_SANITIZE_STRING);
-    $searchtext = '%' . mysqli_real_escape_string($conn, $_POST['searchtext']) . '%';
-    $sql = "";
-    $stmt = "";
-    if ($searchtype == "Students") {
-      $sql = "SELECT * FROM student WHERE name LIKE ? OR s_id LIKE ?";
-    } 
-    else if ($searchtype == "Verifiers") {
-        $sql = "SELECT * FROM verifier WHERE name LIKE ? OR v_id LIKE ?";
-    } 
-    else if ($searchtype == "Achievements") {
-        $sql = "SELECT * FROM achievements WHERE name LIKE ? OR keywords LIKE ?";
-    } 
-    else if ($searchtype == "Events") {
-        $sql = "SELECT * FROM events WHERE name LIKE ? OR summary LIKE ? OR keywords LIKE ?";
-    } 
-    else if ($searchtype == "Notices") {
-        $sql = "SELECT * FROM notices WHERE name LIKE ? OR content LIKE ? OR keywords LIKE ?";
-    }
-    $stmt=mysqli_prepare($conn,$sql);
-    if($stmt){
-      mysqli_stmt_bind_param($stmt, "ss", $searchtext, $searchtext);
-      mysqli_stmt_execute($stmt);
-      $result = mysqli_stmt_get_result($stmt);
+    if (!empty($_POST['searchtext'])) {
+        $searchtype = filter_input(INPUT_POST, 'searchtype', FILTER_SANITIZE_STRING);
+        $searchtext = '%' . $_POST['searchtext'] . '%';
 
-      if ($result->num_rows > 0) {
-          $row = mysqli_fetch_assoc($result);
-          $_SESSION['searchtext'] = $_POST['searchtext'];
-          $_SESSION['searchtype'] = strtolower($searchtype);
-          header("Location:view_all_profiles.php");
-      } 
-      else {
-          echo "<script>alert('Sorry. We do not have that information in our database.')</script>";
-      }
-      mysqli_stmt_close($stmt);
+        $sql = "";
+        $stmt = "";
+
+        switch ($searchtype) {
+            case "Students":
+                $sql = "SELECT * FROM student WHERE name LIKE ? OR s_id LIKE ?";
+                break;
+            case "Verifiers":
+                $sql = "SELECT * FROM verifier WHERE name LIKE ? OR v_id LIKE ?";
+                break;
+            case "Achievements":
+                $sql = "SELECT * FROM achievements WHERE name LIKE ? OR keywords LIKE ?";
+                break;
+            case "Events":
+                $sql = "SELECT * FROM events WHERE name LIKE ? OR summary LIKE ? OR keywords LIKE ?";
+                break;
+            case "Notices":
+                $sql = "SELECT * FROM notices WHERE name LIKE ? OR content LIKE ? OR keywords LIKE ?";
+                break;
+        }
+
+        $stmt = mysqli_prepare($conn, $sql);
+
+        if ($stmt) {
+            mysqli_stmt_bind_param($stmt, "ss", $searchtext, $searchtext);
+            mysqli_stmt_execute($stmt);
+            $result = mysqli_stmt_get_result($stmt);
+
+            if ($result->num_rows > 0) {
+                $row = mysqli_fetch_assoc($result);
+                $_SESSION['searchtext'] = $_POST['searchtext'];
+                $_SESSION['searchtype'] = strtolower($searchtype);
+                header("Location:view_all_profiles.php");
+                exit();
+            } else {
+                echo "<script>alert('Sorry. We do not have that information in our database.')</script>";
+            }
+
+            mysqli_stmt_close($stmt);
+        }
+    } else {
+        echo "<script>alert('Please choose an option to search.')</script>";
     }
-  }
-  else {
-    echo "<script>alert('Please choose an option to search.')</script>";
-  }
 }
 
 mysqli_close($conn);
-
 ?>
+
 
 
 <!DOCTYPE html>
@@ -222,14 +221,6 @@ https://templatemo.com/tm-546-sixteen-clothing
         ?>
 	</div>
 </nav>
-      
-       
-        
-                 
-                
-          
-        
-
     </header>
 
     <!-- Page Content -->
@@ -270,22 +261,25 @@ https://templatemo.com/tm-546-sixteen-clothing
           <div class="col-md-4">
             <div class="team-member">
               <div class="thumb-container">
-                <img src="./event_images/<?php echo $event['image']; ?>" alt=""style="width:350px;height: 250px;border-radius: 10px; border: 3px solid #f08c09; padding: 3px;">
+                <img src="./event_images/<?php echo htmlspecialchars($event['image'], ENT_QUOTES, 'UTF-8');?>" alt=""style="width:350px;height: 250px;border-radius: 10px; border: 3px solid #f08c09; padding: 3px;">
                 <div class="hover-effect"style="border-radius: 10px; width:346px;height: 246px;">
                   <div class="hover-content">
                     
-                    <div class="para">
-                      <h4><p><?php echo $event['event_date'] ?><br></br>
-                            <?php echo $event['event_time'] ?><br></br>
-                            <?php echo $event['location'] ?>
+                  <div class="para">
+                      <h4>
+                          <p>
+                              <?php echo htmlspecialchars($event['event_date'], ENT_QUOTES, 'UTF-8'); ?><br></br>
+                              <?php echo htmlspecialchars($event['event_time'], ENT_QUOTES, 'UTF-8'); ?><br></br>
+                              <?php echo htmlspecialchars($event['location'], ENT_QUOTES, 'UTF-8'); ?>
                           </p>
                       </h4>
-                    </div>
+                  </div>
+
                   </div>
                 </div>
               </div>
               <div class="down-content">
-              <a href="view_specific_event.php?e_id=<?php echo $event['e_id'] ?>"><?php echo htmlspecialchars($event['name']) ?></a> 
+              <a href="view_specific_event.php?e_id=<?echo htmlspecialchars($event['e_id'], ENT_QUOTES, 'UTF-8') ?>"><?php echo htmlspecialchars($event['name']) ?></a> 
               </div>
             </div>
           </div>
@@ -316,11 +310,11 @@ https://templatemo.com/tm-546-sixteen-clothing
                     <a href="view_specific_notice.php?n_id=<?php echo $notice['n_id'] ?>"><?php echo htmlspecialchars($notice['name']) ?></a>
                      
                       <p><?php  if(strlen($notice['content'])>100){
-                                  $string = substr($notice['content'],0,100);
-                                  echo $string.("...");
+                                  $string = substr($notice['content'], 0, 100);
+                                  echo htmlspecialchars($string, ENT_QUOTES, 'UTF-8') . "...";
                                 }
                                 else{
-                                  echo $notice['content'];
+                                  echo htmlspecialchars($notice['content'], ENT_QUOTES, 'UTF-8');
                                 }
                           ?></p>
                       

@@ -246,40 +246,45 @@ mysqli_close($conn);
       <br></br>
     </div>
 </div>
-      <div class="inputfield">
-          <label>Name Of Event:</label>
-          <input type="text" class="input" value="<?php echo $event['name']; ?>" name="eventname" readonly>
-      </div>  
-      <div class="inputfield">
-          <label>Date Of Event: </label>
-          <input type="text" class="input" value="<?php echo $event['event_date']; ?>" name="eventdate" readonly>
-       </div>  
-       <div class="inputfield">
-          <label>Time Of Event: </label>
-          <input type="text" class="input" value="<?php echo $event['event_time']; ?>" name="eventtime" readonly>
-       </div>  
-      <div class="inputfield">
-          <label>Location Of Event: </label>
-          <input type="text" class="input" value="<?php echo $event['location']; ?>" name="eventlocation" readonly>
-       </div> 
-     
-      <div class="inputfield">
-          <label>Description: </label>
-          <textarea type="text" rows="20" cols="50" class="input" name="eventsummary" readonly><?php echo $event['summary']; ?>
-          </textarea>
-       </div>
-       <div class="inputfield">
-          <label>Guests: </label>
-          <input type="text" class="input" value="<?php echo $event['guests']; ?>" name="eventguests" readonly>
-       </div> 
-       <div class="inputfield">
-          <label>Special Members: </label>
-          <input type="text" class="input" value="<?php echo $event['special_members']; ?>" name="eventspecialmembers" readonly>
-       </div>  
-      <div class="inputfield">
-          <label>Keywords: </label>
-          <input type="text" class="input" value="<?php echo $event['keywords']; ?>" name="eventkeywords" readonly>
-       </div>
+    <div class="inputfield">
+        <label>Name Of Event:</label>
+        <input type="text" class="input" value="<?php echo htmlspecialchars($event['name'], ENT_QUOTES, 'UTF-8'); ?>" name="eventname" readonly>
+    </div>
+
+    <div class="inputfield">
+        <label>Date Of Event: </label>
+        <input type="text" class="input" value="<?php echo htmlspecialchars($event['event_date'], ENT_QUOTES, 'UTF-8'); ?>" name="eventdate" readonly>
+    </div>
+
+    <div class="inputfield">
+        <label>Time Of Event: </label>
+        <input type="text" class="input" value="<?php echo htmlspecialchars($event['event_time'], ENT_QUOTES, 'UTF-8'); ?>" name="eventtime" readonly>
+    </div>
+
+    <div class="inputfield">
+        <label>Location Of Event: </label>
+        <input type="text" class="input" value="<?php echo htmlspecialchars($event['location'], ENT_QUOTES, 'UTF-8'); ?>" name="eventlocation" readonly>
+    </div>
+
+    <div class="inputfield">
+        <label>Description: </label>
+        <textarea type="text" rows="20" cols="50" class="input" name="eventsummary" readonly><?php echo htmlspecialchars($event['summary'], ENT_QUOTES, 'UTF-8'); ?></textarea>
+    </div>
+
+    <div class="inputfield">
+        <label>Guests: </label>
+        <input type="text" class="input" value="<?php echo htmlspecialchars($event['guests'], ENT_QUOTES, 'UTF-8'); ?>" name="eventguests" readonly>
+    </div>
+
+    <div class="inputfield">
+        <label>Special Members: </label>
+        <input type="text" class="input" value="<?php echo htmlspecialchars($event['special_members'], ENT_QUOTES, 'UTF-8'); ?>" name="eventspecialmembers" readonly>
+    </div>
+
+    <div class="inputfield">
+        <label>Keywords: </label>
+        <input type="text" class="input" value="<?php echo htmlspecialchars($event['keywords'], ENT_QUOTES, 'UTF-8'); ?>" name="eventkeywords" readonly>
+    </div>
 
     <?php
       if(strlen($username)==9 && is_numeric($username) && (!$sqlstudenteventsresult->num_rows > 0)){

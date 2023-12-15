@@ -271,29 +271,40 @@ if (isset($_GET['verifya_id'])) {
     </div>
 </div>
 <div class="h6"><span class="text-muted h6"></span></div>
-    <div class="myimg" style="display: flex;
-  justify-content: center;"><img src="./images/<?php echo $achievement['file_link']; ?>" style="width:400px;height: 250px;border-radius: 10px; border: 6px solid #f08c09; padding: 3px;"></div>
+    <div class="myimg" style="display: flex; justify-content: center;">
+        <img src="./images/<?php echo htmlspecialchars($achievement['file_link'], ENT_QUOTES, 'UTF-8'); ?>"
+            style="width: 400px; height: 250px; border-radius: 10px; border: 6px solid #f08c09; padding: 3px;">
+    </div>
+
     <div class="inputfield">
-        <label><?php echo $achievement['category']; ?></label>
-    </div>  
+        <label><?php echo htmlspecialchars($achievement['category'], ENT_QUOTES, 'UTF-8'); ?></label>
+    </div>
+
     <div class="inputfield">
         <label>Title: </label>
-        <input type="text" class="input" value="<?php echo $achievement['name']; ?>" name="achievementtitle" readonly>
-    </div> 
+        <input type="text" class="input" value="<?php echo htmlspecialchars($achievement['name'], ENT_QUOTES, 'UTF-8'); ?>"
+            name="achievementtitle" readonly>
+    </div>
+
     <div class="inputfield">
         <label>Description: </label>
-        <textarea type="text" rows="20" cols="50" class="input" name="achievementdescription" readonly><?php echo $achievement['description']; ?>
-        </textarea>
-        
+        <textarea type="text" rows="20" cols="50" class="input" name="achievementdescription"
+            readonly><?php echo htmlspecialchars($achievement['description'], ENT_QUOTES, 'UTF-8'); ?></textarea>
     </div>
+
     <div class="inputfield">
         <label>Keywords: </label>
-        <input type="text" class="input" value="<?php echo $achievement['keywords']; ?>" name="achievementkeywords" readonly>
+        <input type="text" class="input" value="<?php echo htmlspecialchars($achievement['keywords'], ENT_QUOTES, 'UTF-8'); ?>"
+            name="achievementkeywords" readonly>
     </div>
+
     <div class="inputfield">
         <label>External File Link: </label>
-        <input type="text" class="input" value="<?php echo $achievement['external_file']; ?>" name="achievementtexternalfile" readonly>
+        <input type="text" class="input"
+            value="<?php echo htmlspecialchars($achievement['external_file'], ENT_QUOTES, 'UTF-8'); ?>"
+            name="achievementtexternalfile" readonly>
     </div>
+
     <div class="inputfield">
         <label>Verification: </label>
         <?php

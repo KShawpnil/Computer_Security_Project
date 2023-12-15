@@ -490,22 +490,22 @@ if(isset($_POST['submitsearch'])){
                         <div class="timeline-card timeline-card-info" data-aos="fade-in" data-aos-delay="0">
                           <div class="timeline-head px-4 pt-3">
 
-                            <div class="h6">Project: <span class="text-muted h6"><?php echo $count; ?></span></div>
-                            <div class="h6">Title: <span class="text-muted h6"><?php echo $userproject['name']; ?></span></div>
-                            <div class="h6">Description: <span class="text-muted h6"><?php echo $userproject['description']; ?></span></div>
-                            <div class="h6">Keywords: <span class="text-muted h6"><?php echo $userproject['keywords']; ?></span></div>
-                            <div class="h6">External File Link: <span class="text-muted h6"><?php echo $userproject['external_file']; ?></span></div>
-                            <div class="h6">Verification: <span class="text-muted h6">
-                                <?php
-                                if ($userproject['is_verified'] == 1) {
-                                  echo ("Verified by " . $userproject['v_id']);
-                                } else {
+                          <div class="h6">Project: <span class="text-muted h6"><?php echo htmlspecialchars($count, ENT_QUOTES, 'UTF-8'); ?></span></div>
+                          <div class="h6">Title: <span class="text-muted h6"><?php echo htmlspecialchars($userproject['name'], ENT_QUOTES, 'UTF-8'); ?></span></div>
+                          <div class="h6">Description: <span class="text-muted h6"><?php echo htmlspecialchars($userproject['description'], ENT_QUOTES, 'UTF-8'); ?></span></div>
+                          <div class="h6">Keywords: <span class="text-muted h6"><?php echo htmlspecialchars($userproject['keywords'], ENT_QUOTES, 'UTF-8'); ?></span></div>
+                          <div class="h6">External File Link: <span class="text-muted h6"><?php echo htmlspecialchars($userproject['external_file'], ENT_QUOTES, 'UTF-8'); ?></span></div>
+                          <div class="h6">Verification: <span class="text-muted h6">
+                              <?php
+                              if ($userproject['is_verified'] == 1) {
+                                  echo ("Verified by " . htmlspecialchars($userproject['v_id'], ENT_QUOTES, 'UTF-8'));
+                              } else {
                                   echo ("Not Verified");
-                                }
-                                ?>
-                              </span></div>
-                            <div class="h6">Image: <span class="text-muted h6"></span></div>
-                            <div class="myimg"><img src="./images/<?php echo $userproject['file_link']; ?>" style="width:400px;height: 250px;border-radius: 10px; border: 6px solid #f08c09; padding: 3px;"></div>
+                              }
+                              ?>
+                          </span></div>
+                          <div class="h6">Image: <span class="text-muted h6"></span></div>
+                          <div class="myimg"><img src="./images/<?php echo htmlspecialchars($userproject['file_link'], ENT_QUOTES, 'UTF-8'); ?>" style="width:400px;height: 250px;border-radius: 10px; border: 6px solid #f08c09; padding: 3px;"></div>
 
                             <!-- <div class="input-group" style="float: right inherit;">
                               <a class="btn5" style="text-decoration: none; color: white;" href="delete.php?d_id=<?php echo $userproject["a_id"] ?>">Delete</a>

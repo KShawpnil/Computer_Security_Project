@@ -267,31 +267,27 @@ mysqli_close($conn);
    padding-bottom:15px ;
    position: relative;left:7px; "> 
    
-   <div class="textbox"style="position:relative;left:50px;top:40px"><h5><?php echo htmlspecialchars($searchresult['name']) ?></h5></div>
+   <div class="textbox" style="position:relative; left:50px; top:40px">
+    <h5><?php echo htmlspecialchars($searchresult['name'], ENT_QUOTES, 'UTF-8'); ?></h5>
+    </div>
 
- <div class="textdetail"style="position:relative;left:50px;top:40px">
-    <?php
-        if($searchtype=="students" || $searchtype=="achievements" || $searchtype=="eventstudents"){
-        ?>
-        <a href="viewprofile.php?s_id=<?php
-        echo $searchresult['s_id'] ?>"><?php echo ("Click To View Details") ?></a></div>
+    <div class="textdetail" style="position:relative; left:50px; top:40px">
+        <?php
+        if ($searchtype == "students" || $searchtype == "achievements" || $searchtype == "eventstudents") {
+            ?>
+            <a href="viewprofile.php?s_id=<?php echo htmlspecialchars($searchresult['s_id'], ENT_QUOTES, 'UTF-8'); ?>"><?php echo ("Click To View Details"); ?></a>
+        <?php
+        } else if ($searchtype == "verifiers") {
+            ?>
+            <a href="viewprofile.php?v_id=<?php echo htmlspecialchars($searchresult['v_id'], ENT_QUOTES, 'UTF-8'); ?>"><?php echo ("Click To View Details"); ?></a>
+        <?php
+        } else if ($searchtype == "achievements") {
+            ?>
+            <a href="view_specific_achievement.php?a_id=<?php echo htmlspecialchars($searchresult['a_id'], ENT_QUOTES, 'UTF-8'); ?>"><?php echo ("Click To View Details"); ?></a>
         <?php
         }
-        else if($searchtype=="verifiers"){
-            ?>
-            <a href="viewprofile.php?v_id=<?php
-            echo $searchresult['v_id'] ?>"><?php echo ("Click To View Details") ?></a></div>
-            <?php
-        }
-        else if($searchresult=="achievements"){
-          ?>
-          <a href="view_specific_achievement.php?a_id=<?php
-          echo $searchresult['a_id'] ?>"><?php echo ("Click To View Details") ?></a></div>
-          <?php
-        }
-    ?>
- 
- 
+        ?>
+    </div>
  </div>
 
 <!-- End here -->

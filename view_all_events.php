@@ -292,8 +292,8 @@ mysqli_close($conn);
    <div class="myimg"><img src="./event_images/<?php echo $event['image']; ?>" style="object-fit: cover; width:800px;height: 250px;border-radius: 10px;
     border: 6px solid #fff;
     padding: 3px;position:relative;left:60px;top:20px"></div>
- <div class="textbox"style="position:relative;left:50px;top:40px"><h5><?php echo htmlspecialchars($event['name']) ?></h5></div>
- <div class="textdetail"style="position:relative;left:50px;top:40px"><a href="view_specific_event.php?e_id=<?php echo $event['e_id'] ?>"><?php echo ("Click to View Details") ?></a></div>
+ <div class="textbox"style="position:relative;left:50px;top:40px"><h5><?php echo htmlspecialchars($event['name'], ENT_QUOTES, 'UTF-8'); ?></h5></div>
+ <div class="textdetail"style="position:relative;left:50px;top:40px"><a href="view_specific_event.php?e_id=<?php echo htmlspecialchars($event['e_id'], ENT_QUOTES, 'UTF-8'); ?>"><?php echo ("Click to View Details") ?></a></div>
  
  
  </div>

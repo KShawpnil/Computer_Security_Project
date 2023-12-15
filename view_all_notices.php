@@ -292,7 +292,7 @@ mysqli_close($conn);
    
  <div class="textbox"style="position:relative;left:50px;top:40px"><h5><?php echo htmlspecialchars($notice['name']) ?></h5></div>
  <div class="textbox"style="position:relative;left:50px;top:40px"><h7>Posted On: <?php echo htmlspecialchars($notice['post_date']) ?></h7></div>
- <div class="textdetail"style="position:relative;left:50px;top:40px"><a href="view_specific_notice.php?n_id=<?php echo $notice['n_id'] ?>"><?php echo ("Click to View Details") ?></a></div>
+ <div class="textdetail"style="position:relative;left:50px;top:40px"><a href="view_specific_notice.php?n_id=<?php echo htmlspecialchars($notice['n_id']) ?>"><?php echo ("Click to View Details") ?></a></div>
  
  
  </div>
