@@ -1,8 +1,9 @@
 <?php
 
 include('db_connect.php');
+include('rateLimit.php');
 
-session_start();
+// session_start();
 
 if (isset($_POST['submit'])) {
   $username = $_POST['username'];
