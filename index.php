@@ -110,7 +110,18 @@ if (isset($_POST['submit'])) {
                     }
                 }
               } else {
-                  echo '<div class="warning-message">hi</div>';
+                $resetTime = 10; // 10 seconds
+                  $lastAttemptTimestamp = isset($_SESSION['last_attempt_timestamp']) ? $_SESSION['last_attempt_timestamp'] : 0;
+                  $currentTime = time();
+
+                  if ($lastAttemptTimestamp > 0 && ($currentTime - $lastAttemptTimestamp) >= $resetTime) {
+                      $attempt = 5;
+                      $_SESSION['last_attempt_timestamp'] = $currentTime;
+                  } else {
+                      echo '<div class="warning-message">You have exceeded the maximum number of attempts.</div>';
+                      echo '<div class="warning-message">Try again after ' . ($resetTime - ($currentTime - $lastAttemptTimestamp)) . ' seconds.</div>';
+}
+
                   echo '<div class="warning-message">Try again after 10 seconds. You have reached max attempts.</div>';
               }
           }
@@ -122,17 +133,18 @@ if (isset($_POST['submit'])) {
                 }
 
                 if ($attempt == 0) {
-                    $resetTime = 10;
-                    $lastAttemptTimestamp = isset($_SESSION['last_attempt_timestamp']) ? $_SESSION['last_attempt_timestamp'] : 0;
-                    $currentTime = time();
-
-                    if ($lastAttemptTimestamp > 0 && ($currentTime - $lastAttemptTimestamp) >= $resetTime) {
-                        $attempt = 5;
-                        $_SESSION['last_attempt_timestamp'] = $currentTime;
-                    } else {
-                        echo '<div class="warning-message">You have exceeded the maximum number of attempts.</div>';
-                        echo '<div class="warning-message">Try again after 5 minutes.</div>';
-                    }
+                  $resetTime = 10; // 10 seconds
+                  $lastAttemptTimestamp = isset($_SESSION['last_attempt_timestamp']) ? $_SESSION['last_attempt_timestamp'] : 0;
+                  $currentTime = time();
+                  
+                  if ($lastAttemptTimestamp > 0 && ($currentTime - $lastAttemptTimestamp) >= $resetTime) {
+                      $attempt = 5;
+                      $_SESSION['last_attempt_timestamp'] = $currentTime;
+                  } else {
+                      echo '<div class="warning-message">You have exceeded the maximum number of attempts.</div>';
+                      echo '<div class="warning-message">Try again after ' . ($resetTime - ($currentTime - $lastAttemptTimestamp)) . ' seconds.</div>';
+                  }
+                  
                 }
 
                 $_SESSION['attempt'] = $attempt;
@@ -196,7 +208,6 @@ if (isset($_POST['submit'])) {
                   }
               }
               } else {
-                  echo '<div class="warning-message">hi</div>';
                   echo '<div class="warning-message">Try again after 10 seconds. You have reached max attempts.</div>';
               }
           }
@@ -207,17 +218,18 @@ if (isset($_POST['submit'])) {
                 }
 
                 if ($attempt == 0) {
-                    $resetTime = 10;
-                    $lastAttemptTimestamp = isset($_SESSION['last_attempt_timestamp']) ? $_SESSION['last_attempt_timestamp'] : 0;
-                    $currentTime = time();
-
-                    if ($lastAttemptTimestamp > 0 && ($currentTime - $lastAttemptTimestamp) >= $resetTime) {
-                        $attempt = 5;
-                        $_SESSION['last_attempt_timestamp'] = $currentTime;
-                    } else {
-                        echo '<div class="warning-message">You have exceeded the maximum number of attempts.</div>';
-                        echo '<div class="warning-message">Try again after 5 minutes.</div>';
-                    }
+                  $resetTime = 10; // 10 seconds
+                  $lastAttemptTimestamp = isset($_SESSION['last_attempt_timestamp']) ? $_SESSION['last_attempt_timestamp'] : 0;
+                  $currentTime = time();
+                  
+                  if ($lastAttemptTimestamp > 0 && ($currentTime - $lastAttemptTimestamp) >= $resetTime) {
+                      $attempt = 5;
+                      $_SESSION['last_attempt_timestamp'] = $currentTime;
+                  } else {
+                      echo '<div class="warning-message">You have exceeded the maximum number of attempts.</div>';
+                      echo '<div class="warning-message">Try again after ' . ($resetTime - ($currentTime - $lastAttemptTimestamp)) . ' seconds.</div>';
+                  }
+                  
                 }
 
                 $_SESSION['attempt'] = $attempt;

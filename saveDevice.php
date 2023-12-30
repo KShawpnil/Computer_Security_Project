@@ -8,10 +8,8 @@ if (isset($_GET['username'])) {
 
     // Check if the checkbox for saving the device is checked
     if (isset($_POST['saveDevice']) && $_POST['saveDevice'] == '1') {
-        // Save the username and IP address to the database
         $saveDeviceQuery = "INSERT INTO student_ip_addresses (student_id, ip_address) VALUES ('$username', '$ipAddress')";
         
-        // Check for errors
         if (mysqli_query($conn, $saveDeviceQuery)) {
             // Set a cookie with the username and IP address
             setcookie('username', $username, time() + (86400 * 30), "/");
@@ -22,13 +20,17 @@ if (isset($_GET['username'])) {
             echo "Error: " . $saveDeviceQuery . "<br>" . mysqli_error($conn);
         }
     } else {
-        // Delete the cookie
-        setcookie('username', '', time() - 3600, "/");
-        setcookie('ipAddress', '', time() - 3600, "/");
-    }
-
+        // Set a cookie with the username and IP address
+        setcookie('username', $username, time() + (86400 * 30), "/");
+        setcookie('ipAddress', $ipAddress, time() + (86400 * 30), "/");
+        header("Location: studenthome.php");
+        exit;
    
 }
+    
+ }
+
+
 ?>
 
 
