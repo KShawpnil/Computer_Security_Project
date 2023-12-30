@@ -117,8 +117,21 @@ if (isset($_POST['submit'])) {
   // $image = $_FILES['img'];
 
 
+  $finfo = finfo_open(FILEINFO_MIME_TYPE);
+  $uploadedMimeType = finfo_file($finfo, $_FILES['file']['tmp_name']);
+  finfo_close($finfo);
 
-  if (move_uploaded_file($_FILES['file']['tmp_name'], $target)) {
+  $allowedMimeTypes = ['image/jpeg', 'image/png'];
+
+  if (!in_array($uploadedMimeType, $allowedMimeTypes)) {
+      // Invalid mime type
+      die('Invalid file mime type.');
+  }
+
+  $uniqueFilename = uniqid().'.'.pathinfo($_FILES['file']['name'], PATHINFO_EXTENSION);
+  $targetPath = 'event_images/'.$uniqueFilename;
+
+  if (move_uploaded_file($_FILES['file']['tmp_name'], $targetPath)) {
     $msg = "Uploaded successfully";
   } else {
     $msg = "Error in uploading";
