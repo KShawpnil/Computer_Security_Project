@@ -168,6 +168,7 @@ if(isset($_POST['tagbutton'])){
 }
 if(isset($_GET['verifya_id'])){
   $a_id=$_GET['verifya_id'];
+  
   $achievement_id=mysqli_real_escape_string($conn,$_GET['verifya_id']);
   $sql="SELECT *
         FROM achievements
@@ -178,20 +179,32 @@ if(isset($_GET['verifya_id'])){
 
 
   if(isset($_POST['verifybutton'])){
+    $pass = $_POST['pass'];
+    $username =  $_SESSION['username'];
     $sql5 = "UPDATE notifications
             SET ntf_status=1
             WHERE a_id='$_GET[verifya_id]';";
     $result5 = mysqli_query($conn, $sql5);
   
-    $sql6 = "UPDATE achievements
-            SET is_verified=1,
-                v_id='$username'
-            WHERE a_id='$_GET[verifya_id]';";
-    $result6 = mysqli_query($conn, $sql6);
+    $sql_ver = "SELECT * FROM verifier WHERE v_id='$username' AND password='$pass'"; 
+
+    $result_ver = mysqli_query($conn, $sql_ver);
+    if ($result_ver ->num_rows > 0) {
+      
+      $sql6 = "UPDATE achievements
+      SET is_verified=1,
+          v_id='$username'
+      WHERE a_id='$_GET[verifya_id]';";
+      $result6 = mysqli_query($conn, $sql6);
+      echo "<script>alert('Achievement Verified')</script>";
+      
+    } else{
+      echo "<script>alert('Password did not match')</script>";
+
+    }
+    
+    
     ?>
-    <script type="text/javascript">
-    alert("Verified successfully.");
-    </script>
     <?php
   }
   
@@ -436,6 +449,8 @@ if(isset($_GET['verifya_id'])){
       <br></br>
             <form action="" method="POST">
             <div class="search">
+              <label> Re enter your password in order to review : </label>
+              <input type="password" name="pass" id="pass"> 
             <button name="verifybutton" class="btn" style="position:relative; top: 40px; left: 0px; background-color:#F50; ">Verify</button>
             <button name="declinebutton" class="btn" style="position:relative; top: 40px; left: 0px; background-color:#F50; ">Decline</button>
         </div>
