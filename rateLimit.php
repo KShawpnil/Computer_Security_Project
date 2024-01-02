@@ -29,7 +29,10 @@ if (isset($_SESSION['rate_limit'][$ip])) {
         if ($data['count'] > $limit) {
             // Return an error response or take appropriate action
             http_response_code(429); // 429 Too Many Requests
-            exit("Rate limit exceeded");
+            // exit("Rate limit exceeded. Please try again later");
+            exit('<script>alert("Rate limit exceeded. Please try again later")</script>');
+            
+            
         } else {
             // Update the rate limit data
             $_SESSION['rate_limit'][$ip] = $data;

@@ -1,6 +1,7 @@
 <?php
 
 include('db_connect.php');
+include('rateLimit.php');
 
 session_start();
 
